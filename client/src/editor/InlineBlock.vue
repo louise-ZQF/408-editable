@@ -22,12 +22,13 @@ async function start() {
   if (!active.value || editing.value) return
   const rendered = root.value?.querySelector<HTMLElement>('[data-inline-display]')
   const markdown = rendered?.querySelector<HTMLElement>('.code-lined-markdown')
+  const rich = rendered?.firstElementChild?.classList.contains('rich-content') ? rendered.firstElementChild : undefined
   const selection = window.getSelection()
   richInitialOffset.value = undefined
   if (rendered && selection?.anchorNode && rendered.contains(selection.anchorNode)) {
     const range = document.createRange(); range.selectNodeContents(rendered); range.setEnd(selection.anchorNode, selection.anchorOffset); richInitialOffset.value = range.toString().length
   }
-  richInitialHTML.value = props.block.type === 'paragraph' ? (markdown?.innerHTML || '') : (rendered?.innerHTML || '')
+  richInitialHTML.value = props.block.type === 'paragraph' ? (markdown?.innerHTML || '') : (rich?.innerHTML ?? rendered?.innerHTML ?? '')
   draft.value = clone(props.block); error.value = ''; editing.value = true; addMenu.value = false
   await nextTick(); root.value?.querySelector<HTMLElement>('textarea, input, select')?.focus()
   if (props.block.type === 'animation') void loadAnimations()
