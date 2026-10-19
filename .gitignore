@@ -1,0 +1,77 @@
+# 依赖
+node_modules/
+
+# 构建产物
+dist/
+build/
+out/
+.next/
+.nuxt/
+.cache/
+
+# 搜索索引（由 scripts/build-search-index.cjs 自动生成，勿跟踪）
+client/public/search/search-index.json
+client/public/search/minisearch-index.json
+client/public/search/minisearch-fragment-index.json
+
+# 真题索引（由 scripts/rebuild-exam-index.mjs 从各年 paper.json 汇总生成，勿跟踪）
+client/public/exams/index.json
+client/public/exams/manifest.json
+
+# 环境变量
+.env
+.env.local
+.env.*.local
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 日志
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# 测试覆盖率
+coverage/
+.nyc_output/
+*.lcov
+
+# Playwright 测试产物
+client/test-results/
+client/playwright-report/
+client/blob-report/
+
+# 编辑器
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# TypeScript 增量编译产物
+**/tsconfig.*.tsbuildinfo
+
+# AI 助手本地锁文件
+skills-lock.json
+
+# 408-terms.txt 的 public 副本：由 vite 构建时从 src/ 自动生成，勿手动维护或提交
+client/public/search/408-terms.txt
+
+# Vite 缓存（如果你有多个 client 目录，可以用通配符）
+**/.vite/
+
+# 临时文件
+tmp/
+temp/
+*.tmp
+*.pid
+
+# Python 缓存
+__pycache__/
+*.pyc
+
+.openai/
+.personal-data/

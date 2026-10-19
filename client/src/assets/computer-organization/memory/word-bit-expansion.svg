@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1760 860" role="img" aria-labelledby="title desc">
+  <title id="title">DRAM 字位扩展连接图</title>
+  <desc id="desc">CPU 的高两位地址经译码后选择片组，低十四位地址利用 DRAM 行列地址复用分时送入芯片；四组八位芯片并联形成三十二位数据通路。</desc>
+
+  <defs>
+    <marker id="arrow-blue" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 10 5 0 10Z" fill="#2563eb"/>
+    </marker>
+    <marker id="arrow-amber" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 10 5 0 10Z" fill="#d97706"/>
+    </marker>
+    <style>
+      text { font-family: "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif; fill: #0f172a; }
+      .label { font-size: 30px; font-weight: 650; }
+      .note { font-size: 24px; fill: #475569; }
+      .chip-title { font-size: 34px; font-weight: 700; text-anchor: middle; }
+      .chip-subtitle { font-size: 23px; fill: #64748b; text-anchor: middle; }
+      .bus { fill: none; stroke-linecap: square; stroke-linejoin: miter; }
+    </style>
+  </defs>
+
+  <!-- CPU -->
+  <rect x="42" y="42" width="190" height="735" fill="#fff7ed" stroke="#d97706" stroke-width="2"/>
+  <text x="137" y="410" class="label" text-anchor="middle">CPU</text>
+
+  <!-- High address bits: bank selection -->
+  <text x="70" y="112" class="label" fill="#92400e">A₁₅–A₁₄</text>
+  <path d="M232 102 H302" class="bus" stroke="#d97706" stroke-width="4" marker-end="url(#arrow-amber)"/>
+
+  <g aria-label="二到四译码器">
+    <path d="M310 62 H450 L492 102 450 142 H310Z" fill="#fffbeb" stroke="#d97706" stroke-width="2.5"/>
+    <text x="391" y="96" class="label" text-anchor="middle" fill="#92400e">2 → 4</text>
+    <text x="391" y="125" class="note" text-anchor="middle" fill="#92400e">片组选取</text>
+  </g>
+
+  <!-- Four decoded bank-select paths -->
+  <path d="M492 102 H585 V215" class="bus" stroke="#d97706" stroke-width="3" marker-end="url(#arrow-amber)"/>
+  <path d="M492 102 H870 V215" class="bus" stroke="#d97706" stroke-width="3" marker-end="url(#arrow-amber)"/>
+  <path d="M492 102 H1155 V215" class="bus" stroke="#d97706" stroke-width="3" marker-end="url(#arrow-amber)"/>
+  <path d="M492 102 H1440 V215" class="bus" stroke="#d97706" stroke-width="3" marker-end="url(#arrow-amber)"/>
+
+  <!-- Logical address bus -->
+  <text x="70" y="226" class="label" fill="#5b4b8a">A₁₃–A₀</text>
+  <path d="M232 216 H1644" class="bus" stroke="#7c6597" stroke-width="4"/>
+  <path d="M585 216 V283 M870 216 V283 M1155 216 V283 M1440 216 V283" class="bus" stroke="#7c6597" stroke-width="3"/>
+
+  <!-- Chip stack 1 -->
+  <g transform="translate(490 300)">
+    <rect x="-26" y="-26" width="190" height="250" fill="#e2e8f0" stroke="#94a3b8" stroke-width="2"/>
+    <rect x="-13" y="-13" width="190" height="250" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2"/>
+    <rect x="0" y="0" width="190" height="250" fill="#fff9db" stroke="#ca8a04" stroke-width="2.5"/>
+    <text x="95" y="100" class="chip-title">16K × 8</text>
+    <text x="95" y="142" class="chip-subtitle">DRAM</text>
+    <text x="95" y="190" class="chip-subtitle">片组 × 4</text>
+  </g>
+
+  <!-- Chip stack 2 -->
+  <g transform="translate(775 300)">
+    <rect x="-26" y="-26" width="190" height="250" fill="#e2e8f0" stroke="#94a3b8" stroke-width="2"/>
+    <rect x="-13" y="-13" width="190" height="250" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2"/>
+    <rect x="0" y="0" width="190" height="250" fill="#fff9db" stroke="#ca8a04" stroke-width="2.5"/>
+    <text x="95" y="100" class="chip-title">16K × 8</text>
+    <text x="95" y="142" class="chip-subtitle">DRAM</text>
+    <text x="95" y="190" class="chip-subtitle">片组 × 4</text>
+  </g>
+
+  <!-- Chip stack 3 -->
+  <g transform="translate(1060 300)">
+    <rect x="-26" y="-26" width="190" height="250" fill="#e2e8f0" stroke="#94a3b8" stroke-width="2"/>
+    <rect x="-13" y="-13" width="190" height="250" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2"/>
+    <rect x="0" y="0" width="190" height="250" fill="#fff9db" stroke="#ca8a04" stroke-width="2.5"/>
+    <text x="95" y="100" class="chip-title">16K × 8</text>
+    <text x="95" y="142" class="chip-subtitle">DRAM</text>
+    <text x="95" y="190" class="chip-subtitle">片组 × 4</text>
+  </g>
+
+  <!-- Chip stack 4 -->
+  <g transform="translate(1345 300)">
+    <rect x="-26" y="-26" width="190" height="250" fill="#e2e8f0" stroke="#94a3b8" stroke-width="2"/>
+    <rect x="-13" y="-13" width="190" height="250" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2"/>
+    <rect x="0" y="0" width="190" height="250" fill="#fff9db" stroke="#ca8a04" stroke-width="2.5"/>
+    <text x="95" y="100" class="chip-title">16K × 8</text>
+    <text x="95" y="142" class="chip-subtitle">DRAM</text>
+    <text x="95" y="190" class="chip-subtitle">片组 × 4</text>
+  </g>
+
+  <!-- Data bus: labels intentionally omitted -->
+  <path d="M232 680 H1640" class="bus" stroke="#2563eb" stroke-width="4" marker-start="url(#arrow-blue)" marker-end="url(#arrow-blue)"/>
+  <path d="M585 550 V680 M870 550 V680 M1155 550 V680 M1440 550 V680" class="bus" stroke="#2563eb" stroke-width="3" marker-start="url(#arrow-blue)" marker-end="url(#arrow-blue)"/>
+
+  <!-- Reading guide -->
+  <g transform="translate(320 735)">
+    <line x1="0" y1="0" x2="1120" y2="0" stroke="#cbd5e1" stroke-width="1.5"/>
+    <text x="0" y="44" class="note"><tspan font-weight="700" fill="#2563eb">横向并联</tspan><tspan dx="12">4 × 8 位 = 32 位，完成位扩展</tspan></text>
+    <text x="610" y="44" class="note"><tspan font-weight="700" fill="#d97706">纵深片组</tspan><tspan dx="12">高 2 位选 1 组，完成字扩展</tspan></text>
+  </g>
+</svg>

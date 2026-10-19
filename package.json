@@ -1,0 +1,37 @@
+{
+  "name": "408-editable",
+  "version": "0.1.0",
+  "private": true,
+  "license": "CC-BY-4.0",
+  "author": "liangbohan",
+  "description": "408 计算机学科考研电子教材（开源、AI 原生、极简、可视化）",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/louise-ZQF/408-editable"
+  },
+  "homepage": "https://louise-zqf.github.io/408-editable/",
+  "keywords": [
+    "408",
+    "kaoyan",
+    "考研",
+    "计算机",
+    "csapp",
+    "datastructure",
+    "os",
+    "computer-network"
+  ],
+  "workspaces": [
+    "client"
+  ],
+  "scripts": {
+    "dev": "npm run rebuild:exams && node scripts/build-search-index.cjs && npm run dev -w client",
+    "build": "npm run rebuild:exams && npm run validate && node scripts/build-search-index.cjs && npm run build -w client",
+    "build:search-index": "node scripts/build-search-index.cjs",
+    "rebuild:exams": "node scripts/rebuild-exam-index.mjs",
+    "validate": "npm run validate:content && npm run validate:exams",
+    "validate:content": "node scripts/validate_knowledge_content.mjs",
+    "validate:exams": "node scripts/validate_exam_content.mjs",
+    "test": "npm run validate && npm run test -w client",
+    "test:e2e": "npm run build && npm run test:e2e -w client"
+  }
+}

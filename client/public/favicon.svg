@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- 透明背景，完全不画矩形 —— 适配任何浏览器/系统主题深浅色 -->
+  <!-- 三条参考线：对应首页 logo 的三条矢量线 -->
+  <path d="M14 33 L50 14" fill="none" stroke="#1B3FA1" stroke-width="2.2" opacity=".7" stroke-linecap="round"/>
+  <path d="M14 33 L50 50" fill="none" stroke="#1B3FA1" stroke-width="2.2" opacity=".7" stroke-linecap="round"/>
+  <!-- 蓝色圆点（左） -->
+  <circle cx="14" cy="33" r="7.5" fill="#1d4ed8"/>
+  <!-- 青色圆点（右上） -->
+  <circle cx="50" cy="14" r="7.5" fill="#38bdf8"/>
+  <!-- 蓝绿圆点（右下） -->
+  <circle cx="50" cy="50" r="7.5" fill="#06b6d4"/>
+</svg>
