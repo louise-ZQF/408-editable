@@ -1,5 +1,7 @@
 import { computed, nextTick, onMounted, ref, watch } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { revision } from '@/editor/store';
+import { flushInlineDrafts, inlineFeedback } from '@/editor/inline';
+import { onBeforeRouteLeave, onBeforeRouteUpdate, useRoute, useRouter } from "vue-router";
 import { content, knowledgeBooks } from "@/content";
 import { getArticleForPoint } from "@/content/knowledge-articles/registry";
 import type { KnowledgeArticleData } from "@/content/knowledge-articles/types";
@@ -108,9 +110,11 @@ export function useKnowledgeReader() {
     }
   }
 
-  async function loadSection(id: string) {
+  let loadSequence = 0;
+  async function loadSection(id: string, background = false) {
+    const sequence = ++loadSequence;
     if (!book.value) return;
-    loading.value = true;
+    if (!background) loading.value = true;
     error.value = "";
     try {
       const nextSection = findSelectedSection(id);
@@ -122,7 +126,7 @@ export function useKnowledgeReader() {
             params: { bookId: bookId.value, sectionId: firstSection.id },
             query: route.query,
           });
-        }
+        } else { section.value = undefined; articleEntries.value = []; }
         return;
       }
       if (id !== nextSection.id) {
@@ -154,6 +158,7 @@ export function useKnowledgeReader() {
         // 真题接口不可用时仍然优先显示静态知识正文。
       }
 
+      if (sequence !== loadSequence) return;
       section.value = nextSection;
       articleEntries.value = nextEntries.map(({ point, article }) => {
         const articleBlockIds = new Set(
@@ -172,14 +177,16 @@ export function useKnowledgeReader() {
     } catch {
       error.value = "本节内容没有加载出来，请检查知识目录与文章注册。";
     } finally {
-      loading.value = false;
-      await nextTick();
-      scrollToRequestedBlock();
+      if (sequence === loadSequence) {
+        loading.value = false;
+        await nextTick();
+        if (!background) scrollToRequestedBlock();
+      }
     }
   }
 
-  async function loadBook() {
-    loading.value = true;
+  async function loadBook(background = false) {
+    if (!background) loading.value = true;
     error.value = "";
     try {
       book.value = await content.getBook(bookId.value);
@@ -196,7 +203,7 @@ export function useKnowledgeReader() {
         loading.value = false;
         return;
       }
-      await loadSection(routeContentId.value);
+      await loadSection(routeContentId.value, background);
     } catch {
       error.value = "知识目录没有加载出来，请检查 content/knowledge-tree.ts。";
       loading.value = false;
@@ -231,6 +238,10 @@ export function useKnowledgeReader() {
     if (!id || !book.value || book.value.id !== bookId.value) return;
     void loadSection(id);
   });
+  watch(revision, () => void loadBook(true));
+  async function saveBeforeNavigation() { try { await flushInlineDrafts() } catch (error) { inlineFeedback(error instanceof Error ? error.message : String(error), true); return false } }
+  onBeforeRouteLeave(saveBeforeNavigation);
+  onBeforeRouteUpdate(saveBeforeNavigation);
   onMounted(() => void loadBook());
 
   return {

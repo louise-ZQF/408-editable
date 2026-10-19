@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import InlineEditingBar from '@/editor/InlineEditingBar.vue'
 import EditorShell from '@/editor/EditorShell.vue'
 import { revision, workspace } from '@/editor/store'
 import { watchEffect } from 'vue'
@@ -8,7 +9,8 @@ import { isNavigating } from '@/router'
 </script>
 
 <template>
-  <RouterView :key="revision" />
+  <RouterView :key="$route.name === 'knowledge' ? 'knowledge' : revision" />
+  <InlineEditingBar />
   <EditorShell />
   <AppFooter v-if="workspace.settings.showFooter" />
 

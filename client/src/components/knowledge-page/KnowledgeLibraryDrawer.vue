@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import InlineNodeActions from '@/editor/InlineNodeActions.vue';
 import { computed, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import type { Book } from "@/types";
@@ -400,6 +401,7 @@ watch(
       </div>
     </section>
 
+    <InlineNodeActions :node-id="bookId" :book="true" />
     <KnowledgeSidebar
       v-if="book"
       class="min-h-0 flex-1"

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import InlineTitle from '@/editor/InlineTitle.vue'
+import { addInlineArticle, inlineAction, inlineMode } from '@/editor/inline'
 import { openEditor } from '@/editor/store'
 import type { Section } from "@/types";
 import ReaderPageNavigation from "@/components/ReaderPageNavigation.vue";
@@ -39,7 +41,7 @@ const emit = defineEmits<{ page: [page: number] }>();
             <h1
               class="m-0 text-[clamp(1.7rem,3vw,2.25rem)] font-semibold leading-tight tracking-[-.045em] text-[#071225]"
             >
-              {{ section.title }}
+              <InlineTitle :title="section.title" :node-id="section.id" />
             </h1>
             <RouterLink
               v-if="sectionExam.examCount"
@@ -78,15 +80,17 @@ const emit = defineEmits<{ page: [page: number] }>();
                     class="mb-2 block font-mono text-[.34em] font-bold tracking-[.16em] text-[#31559e]"
                     >ARTICLE {{ String(index + 1).padStart(2, "0") }}</span
                   >
-                  {{ entry.point.title }}
+                  <InlineTitle :title="entry.point.title" :node-id="entry.point.id" />
                 </h2>
               </header>
-              <button class="mb-5 rounded-md border border-[#d7e0ee] px-3 py-2 text-xs text-[#54729e] hover:bg-[#f3f6fc]" @click="openEditor(entry.point.id)">编辑这篇文章</button>
+              <button class="mb-5 rounded-md border border-[#d7e0ee] px-3 py-2 text-xs text-[#54729e] hover:bg-[#f3f6fc]" @click="inlineMode = true">直接修改这篇文章</button>
               <KnowledgeArticle
                 :article="entry.article"
+                :editable="true"
                 :exam-links="entry.examLinks"
               />
             </section>
+            <button v-if="inlineMode" class="inline-add-subpoint" @click="inlineAction(() => addInlineArticle(section!.id))">＋ 添加文章</button>
           </div>
         </template>
         <div v-else-if="!loading" class="personal-empty-reader"><div><p class="mb-5">当前教材还没有页面，你可以从内容管理中添加。</p><button @click="openEditor()">打开内容管理</button></div></div>

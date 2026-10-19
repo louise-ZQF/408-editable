@@ -23,7 +23,8 @@ test('教材新增、改名、刷新持久保存、删除和回收站恢复', as
 
 test('正文修改在刷新后保留，并参与搜索', async ({ page }) => {
   await page.goto('/#/knowledge/data-structures/ds-section-5')
-  await page.getByRole('button', { name: '编辑这篇文章', exact: true }).first().click()
+  await page.getByRole('button', { name: '内容管理', exact: true }).click()
+  await page.locator('.ed-child').filter({ hasText: '树的基本概念' }).click()
   const text = page.getByLabel('正文（支持 Markdown、代码和 $LaTeX$）', { exact: true }).first()
   await text.fill('**自定义学习标记**：这段内容来自个人编辑器。')
   await page.getByRole('button', { name: '保存正文', exact: true }).click()

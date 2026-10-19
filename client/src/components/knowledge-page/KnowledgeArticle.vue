@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import InlineBlock from '@/editor/InlineBlock.vue';
+import InlineTitle from '@/editor/InlineTitle.vue';
+import InlineAddContent from '@/editor/InlineAddContent.vue';
+import { inlineMode, inlineAction, addInlineSubpoint, deleteInlineSubpoint } from '@/editor/inline';
 import { computed, defineAsyncComponent } from "vue";
 import katex from "katex";
 import DOMPurify from "dompurify";
@@ -11,8 +15,9 @@ const props = withDefaults(
   defineProps<{
     article: KnowledgeArticleData;
     examLinks: ExamKnowledgeLink[];
+    editable?: boolean;
   }>(),
-  { examLinks: () => [] },
+  { examLinks: () => [], editable: false },
 );
 
 type SubpointExamSummary = {
@@ -108,7 +113,7 @@ function renderInlineMath(text: string): string {
           <span class="mr-3 font-mono text-[.62em] font-bold text-[#31559e]">{{
             String(index + 1).padStart(2, "0")
           }}</span
-          >{{ subpoint.title }}
+          ><InlineTitle v-if="editable" :title="subpoint.title" :node-id="subpoint.id" kind="subpoint" :point-id="article.pointId || ''" /><template v-else>{{ subpoint.title }}</template>
         </h2>
 
         <RouterLink
@@ -132,15 +137,17 @@ function renderInlineMath(text: string): string {
             >→</span
           >
         </RouterLink>
+        <button v-if="editable && inlineMode" class="inline-subpoint-delete" @click="inlineAction(() => deleteInlineSubpoint(article.pointId, subpoint.id))">删除小节</button>
       </header>
 
       <div class="grid gap-7">
         <section
-          v-for="block in subpoint.blocks"
+          v-for="(block, blockIndex) in subpoint.blocks"
           :id="block.id"
           :key="block.id"
           class="scroll-mt-28"
         >
+          <InlineBlock :block="block" :point-id="article.pointId || ''" :subpoint-id="subpoint.id" :first="blockIndex === 0" :last="blockIndex === subpoint.blocks.length - 1" :enabled="editable">
           <KnowledgeMarkdown
             v-if="block.type === 'paragraph'"
             :source="block.text"
@@ -217,8 +224,11 @@ function renderInlineMath(text: string): string {
           <figure v-else-if="block.type === 'animation'" class="m-0 py-3">
             <ManimCodePlayer v-if="block.animation.steps" :animation="block.animation" /><p v-else class="text-sm text-slate-500">动画引用未找到，请在内容管理中重新选择动画。</p>
           </figure>
+          </InlineBlock>
         </section>
       </div>
+      <InlineAddContent v-if="editable" :point-id="article.pointId || ''" :subpoint-id="subpoint.id" />
     </section>
+    <button v-if="editable && inlineMode" class="inline-add-subpoint" @click="inlineAction(() => addInlineSubpoint(article.pointId))">＋ 添加小节</button>
   </article>
 </template>

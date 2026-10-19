@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import InlineNodeActions from '@/editor/InlineNodeActions.vue';
 import { computed, ref, watch } from "vue";
 import type { Chapter } from "@/types";
 
@@ -148,6 +149,7 @@ watch(normalizedQuery, () => {
             >{{ openChapterId === chapter.id ? "−" : "+" }}</span
           >
         </button>
+        <InlineNodeActions :node-id="chapter.id" />
 
         <div
           class="chapter-sections"
@@ -171,6 +173,7 @@ watch(normalizedQuery, () => {
               >
                 {{ section.title }}
               </button>
+              <InlineNodeActions :node-id="section.id" />
             </li>
           </ul>
         </div>
