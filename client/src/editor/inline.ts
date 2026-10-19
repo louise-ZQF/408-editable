@@ -60,7 +60,7 @@ export async function moveInlineBlock(pointId: string, subpointId: string, block
   })
   inlineFeedback('顺序已更新')
 }
-export const inlineKinds = { paragraph: '文字段落', formula: '公式', image: '图片', callout: '提示框', html: '表格 / SVG', animation: '原站动画', embed: '自定义动画' } as const
+export const inlineKinds = { paragraph: '文字段落', formula: '公式', image: '图片', callout: '提示框', html: '表格', animation: '原站动画', embed: '自定义动画' } as const
 export async function addInlineBlock(pointId: string, subpointId: string, type: keyof typeof inlineKinds = 'paragraph', afterId?: string) {
   await flushInlineDrafts()
   const id = uid('kb')

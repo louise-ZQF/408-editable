@@ -6,6 +6,7 @@ import { inlineMode, inlineAction, addInlineSubpoint, deleteInlineSubpoint } fro
 import { computed, defineAsyncComponent } from "vue";
 import katex from "katex";
 import DOMPurify from "dompurify";
+import { renderRichHTML } from '@/editor/richText';
 import KnowledgeMarkdown from "./KnowledgeMarkdown.vue";
 const ManimCodePlayer = defineAsyncComponent(() => import("./ManimCodePlayer.vue"));
 import type { KnowledgeArticleData } from "@/content/knowledge-articles/types";
@@ -155,8 +156,8 @@ function renderInlineMath(text: string): string {
 
           <div
             v-else-if="block.type === 'html'"
-            class="text-[19px] leading-[2] text-[#334155] [&_h2]:mb-4 [&_h2]:mt-9 [&_h2]:text-2xl [&_h2]:font-semibold [&_h2]:text-[#071225] [&_p]:my-5 [&_strong]:font-semibold [&_strong]:text-[#071225]"
-            v-html="DOMPurify.sanitize(block.html, { ADD_TAGS: ['svg', 'path', 'circle', 'text'] })"
+            class="rich-content text-[19px] leading-[2] text-[#334155] [&_h2]:mb-4 [&_h2]:mt-9 [&_h2]:text-2xl [&_h2]:font-semibold [&_h2]:text-[#071225] [&_p]:my-5 [&_strong]:font-semibold [&_strong]:text-[#071225]"
+            v-html="renderRichHTML(block.html)"
           ></div>
 
           <figure
