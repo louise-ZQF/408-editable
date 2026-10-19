@@ -77,7 +77,7 @@ defineExpose({ save, isDirty })
   <section class="article-workbench" @keydown="handleShortcut">
     <div class="ed-toolbar">
       <div><h3>文章正文</h3><span class="ed-muted">每一段文字、公式、图表和动画都可以增删与排序。</span></div>
-      <div class="ed-actions"><button @click="toggleSource">{{ sourceMode ? '返回可视编辑' : 'JSON 源码' }}</button><button :aria-pressed="preview" @click="preview = !preview">{{ preview ? '继续编辑' : '预览正文' }}</button><button class="ed-primary" @click="save">保存正文<span v-if="isDirty"> ·</span></button></div>
+      <div class="ed-actions"><button @click="toggleSource">{{ sourceMode ? '返回可视编辑' : 'JSON 源码' }}</button><button :aria-pressed="preview" @click="preview = !preview">{{ preview ? '继续编辑' : '预览正文' }}</button><button class="ed-primary" aria-label="保存正文" @click="save">保存正文<span v-if="isDirty"> ·</span></button></div>
     </div>
     <div v-if="loading" class="ed-empty">正在载入完整原文…</div>
     <div v-else-if="preview" class="ed-preview"><KnowledgeArticle :article="hydrateArticle(article)" :exam-links="[]" /></div>

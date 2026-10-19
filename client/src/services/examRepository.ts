@@ -174,7 +174,10 @@ export async function getExamsByIds(ids: string[]): Promise<Exam[]> {
   const index = await getExamIndex()
   const byId = new Map(index.map((x) => [x.id, x]))
   const perYear = new Map<number, string[]>()
+  const personal: Exam[] = []
   for (const id of ids) {
+    if (workspace.deletedExams.includes(id)) continue
+    if (workspace.exams[id]) { personal.push(workspace.exams[id]); continue }
     const row = byId.get(id)
     if (row) {
       const list = perYear.get(row.year) || []
@@ -183,7 +186,7 @@ export async function getExamsByIds(ids: string[]): Promise<Exam[]> {
     }
   }
 
-  const result: Exam[] = []
+  const result: Exam[] = [...personal]
   for (const [year, yearIds] of perYear) {
     const paper = await getExamPaper(year)
     if (!paper) continue
@@ -217,6 +220,8 @@ export async function queryQuestions(query: ExamFilterQuery & { page?: number; p
 }
 
 export async function getQuestionById(id: string): Promise<Exam | null> {
+  if (workspace.deletedExams.includes(id)) return null
+  if (workspace.exams[id]) return workspace.exams[id]
   const index = await getExamIndex()
   const row = index.find((x) => x.id === id)
   if (!row) return null

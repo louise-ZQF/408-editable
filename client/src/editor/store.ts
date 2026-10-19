@@ -204,6 +204,8 @@ export async function reloadPublished() {
   if (!response.ok) throw new Error('GitHub 发布数据暂时无法读取')
   const data = validateWorkspace(await response.json())
   importWorkspace(data)
-  await markPublished(workspace.updatedAt)
+  workspace.updatedAt = data.updatedAt
+  queueSave()
+  await markPublished(data.updatedAt)
   unpublished.value = false
 }

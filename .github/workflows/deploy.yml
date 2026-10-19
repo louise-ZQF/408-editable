@@ -87,6 +87,14 @@ jobs:
       - name: Run Playwright E2E
         run: npm run test:e2e -w client
 
+      - name: Preserve failed browser test diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-test-diagnostics
+          path: client/test-results
+          retention-days: 7
+
   deploy:
     needs: [build, test]
     runs-on: ubuntu-latest

@@ -61,7 +61,7 @@ function renderFormula(latex: string): string {
       trust: false,
     });
   } catch {
-    return `<code class="text-red-600">公式渲染错误: ${latex}</code>`;
+    return `<code class="text-red-600">公式渲染错误: ${latex.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code>`;
   }
 }
 
