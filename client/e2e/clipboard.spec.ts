@@ -1,0 +1,48 @@
+import { expect, test } from '@playwright/test'
+
+test('直接粘贴 GPT 的 Markdown 回答，排版、公式和代码保存后仍完整', async ({ page }) => {
+  await page.goto('/#/knowledge/data-structures/ds-section-5')
+  const block = page.locator('#kb-ds-5-1-1-1')
+  await block.locator('[data-inline-display]').click()
+  const editor = page.getByLabel('直接编辑正文', { exact: true })
+  await editor.press('ControlOrMeta+A')
+  const text = '## GPT 二叉树笔记\n\n**重点**\n\n- 根节点\n- 叶子节点\n\n| 名称 | 含义 |\n| --- | --- |\n| 根 | 起点 |\n\n性质 $n_0=n_2+1$ 和 \\(x^2\\)。\n\n$$\\frac{a_b}{c}$$\n\n\\[x<y\\]\n\n```js\nconst sample = "$x$ **原样**"\n```\n\n行内 `$y$`'
+  await editor.evaluate((element, text) => {
+    const clipboardData = new DataTransfer()
+    clipboardData.setData('text/plain', text)
+    element.dispatchEvent(new ClipboardEvent('paste', { clipboardData, bubbles: true, cancelable: true }))
+  }, text)
+  await expect(editor.locator('h2')).toHaveText('GPT 二叉树笔记')
+  await expect(editor.locator('strong')).toHaveText('重点')
+  await expect(editor.locator('li')).toHaveCount(2)
+  await expect(editor.locator('tbody td').first()).toHaveText('根')
+  await expect(editor.locator('[data-rich-math]')).toHaveCount(4)
+  await expect(editor.locator('pre code')).toContainText('const sample = "$x$ **原样**"')
+  await expect(editor.locator('p code')).toHaveText('$y$')
+  await page.getByRole('button', { name: '保存这段内容', exact: true }).click()
+  await page.getByRole('button', { name: '完成编辑', exact: true }).click()
+  await page.reload()
+  await expect(block.locator('h2')).toHaveText('GPT 二叉树笔记')
+  await expect(block.locator('.katex')).toHaveCount(4)
+  await expect(block.locator('table')).toHaveCount(1)
+  await expect(block.locator('pre code')).toContainText('const sample = "$x$ **原样**"')
+})
+
+test('选中网页回答复制时保留富文本，过滤无关按钮和脚本', async ({ page }) => {
+  await page.goto('/#/knowledge/data-structures/ds-section-5')
+  const block = page.locator('#kb-ds-5-1-1-1')
+  await block.locator('[data-inline-display]').click()
+  const editor = page.getByLabel('直接编辑正文', { exact: true })
+  await editor.press('ControlOrMeta+A')
+  await editor.evaluate(element => {
+    const clipboardData = new DataTransfer()
+    clipboardData.setData('text/html', '<h2 style="position:fixed" id="copied">网页回答</h2><p><b>重点内容</b></p><button>复制</button><script>alert(1)</script><a href="javascript:alert(1)">引用</a>')
+    clipboardData.setData('text/plain', '网页回答 重点内容 引用')
+    element.dispatchEvent(new ClipboardEvent('paste', { clipboardData, bubbles: true, cancelable: true }))
+  })
+  await expect(editor.locator('h2')).toHaveText('网页回答')
+  await expect(editor.locator('b')).toHaveText('重点内容')
+  await expect(editor.locator('button, script, [style], [id], [href^="javascript:"]')).toHaveCount(0)
+  await page.getByRole('button', { name: '保存这段内容', exact: true }).click()
+  await expect(block.locator('h2')).toHaveText('网页回答')
+})

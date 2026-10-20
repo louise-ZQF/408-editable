@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { nextTick, onMounted, ref } from 'vue'
 import { editableRichHTML, serializeRichHTML } from './richText'
+import { clipboardRichHTML } from './clipboard'
 
 const props = defineProps<{ initialHtml: string; label?: string; initialOffset?: number }>()
 const emit = defineEmits<{ change: [html: string] }>()
@@ -36,9 +37,12 @@ function format(command: string, value?: string) {
 function addTable() { format('insertHTML', '<table><thead><tr><th>标题</th><th>说明</th></tr></thead><tbody><tr><td>点击填写</td><td>点击填写</td></tr><tr><td>点击填写</td><td>点击填写</td></tr></tbody></table><p><br></p>') }
 function paste(event: ClipboardEvent) {
   event.preventDefault()
-  const html = event.clipboardData?.getData('text/html')
-  if (html) format('insertHTML', editableRichHTML(html))
-  else format('insertText', event.clipboardData?.getData('text/plain') || '')
+  rememberSelection()
+  const text = event.clipboardData?.getData('text/plain') || ''
+  const node = window.getSelection()?.anchorNode
+  const element = node instanceof Element ? node : node?.parentElement
+  if (element?.closest('pre, code')) format('insertText', text)
+  else format('insertHTML', clipboardRichHTML(event.clipboardData?.getData('text/html') || '', text))
 }
 function flush() { if (surface.value && touched) emit('change', serializeRichHTML(surface.value)) }
 onMounted(async () => {
@@ -75,6 +79,7 @@ defineExpose({ flush })
       <button type="button" :aria-expanded="symbols" @mousedown.prevent @click="symbols = !symbols">数学符号</button>
       <button type="button" aria-label="清除格式" @mousedown.prevent @click="format('removeFormat')">清除格式</button>
     </div>
+    <p class="rich-paste-hint">可以直接粘贴 GPT 的回答，标题、表格和常见公式会自动排版。</p>
     <div v-if="symbols" class="rich-symbols" aria-label="常用数学符号"><button v-for="symbol in ['²','³','₀','₁','₂','≤','≥','≠','×','÷','√','∑','π','∞','→','∈']" :key="symbol" type="button" @mousedown.prevent @click="format('insertText', symbol)">{{ symbol }}</button></div>
     <div ref="surface" class="rich-surface" contenteditable="true" role="textbox" :aria-label="label || '直接编辑正文'" aria-multiline="true" spellcheck="false" data-placeholder="直接在这里输入中文…" @input="changed" @compositionstart="composing = true" @compositionend="compositionEnded" @keyup="rememberSelection" @mouseup="rememberSelection" @paste="paste" />
   </div>
