@@ -182,7 +182,8 @@ function renderInlineMath(text: string): string {
             v-else-if="block.type === 'formula'"
             class="m-0 overflow-x-auto border-y border-[#e1e6ed] bg-[#f7f9fc] px-6 py-6 text-[19px]"
           >
-            <div v-html="renderFormula(block.formula)"></div>
+            <div v-if="block.formula" v-html="renderFormula(block.formula)"></div>
+            <p v-else class="m-0 min-h-8"><br /></p>
             <figcaption
               v-if="block.caption"
               class="mt-1 text-sm leading-7 text-slate-500"
