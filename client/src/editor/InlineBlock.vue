@@ -3,6 +3,7 @@ import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import RichTextEditor from './RichTextEditor.vue'
 import { clone, uid } from './store'
 import { animations, ensureAnimations } from './content'
+import { clipboardImages, readImage } from './images'
 import { addInlineBlock, deleteInlineBlock, inlineAction, inlineFocusId, inlineKinds, inlineMode, moveInlineBlock, refreshDirtyCount, registerInlineDraft, saveInlineBlock } from './inline'
 import type { KnowledgeArticleBlock } from '@/content/knowledge-articles/types'
 
@@ -13,8 +14,11 @@ const draft = ref<any>(clone(props.block)), root = ref<HTMLElement>()
 const richEditor = ref<InstanceType<typeof RichTextEditor>>(), richInitialHTML = ref(''), richInitialOffset = ref<number>()
 const richBlock = computed(() => ['paragraph', 'html', 'callout', 'formula'].includes(props.block.type))
 const catalog = ref<string[]>([])
-const dirty = computed(() => editing.value && JSON.stringify(draft.value) !== JSON.stringify(clone(props.block)))
+const imageReading = ref(false), richPending = ref(false)
+const dirty = computed(() => editing.value && (imageReading.value || richPending.value || JSON.stringify(draft.value) !== JSON.stringify(clone(props.block))))
 let saving: Promise<void> | undefined
+let pendingImage: Promise<void> | undefined
+let editSession = 0
 watch(dirty, refreshDirtyCount, { flush: 'sync' })
 const unregister = registerInlineDraft(props.block.id + uid('draft'), { dirty: () => dirty.value, save })
 onBeforeUnmount(unregister)
@@ -29,8 +33,9 @@ async function start() {
     const range = document.createRange(); range.selectNodeContents(rendered); range.setEnd(selection.anchorNode, selection.anchorOffset); richInitialOffset.value = range.toString().length
   }
   richInitialHTML.value = props.block.type === 'paragraph' ? (markdown?.innerHTML || '') : (rich?.innerHTML ?? rendered?.innerHTML ?? '')
+  editSession++; pendingImage = undefined; imageReading.value = false; richPending.value = false
   draft.value = clone(props.block); error.value = ''; editing.value = true; addMenu.value = false
-  await nextTick(); root.value?.querySelector<HTMLElement>('textarea, input, select')?.focus()
+  await nextTick(); root.value?.querySelector<HTMLElement>('.inline-image-paste-zone, textarea, input, select')?.focus()
   if (props.block.type === 'animation') void loadAnimations()
 }
 function contentClick(event: MouseEvent) {
@@ -39,16 +44,17 @@ function contentClick(event: MouseEvent) {
   inlineMode.value = true
   void start()
 }
-function cancel() { editing.value = false; draft.value = clone(props.block); error.value = ''; refreshDirtyCount() }
+function cancel() { editSession++; editing.value = false; imageReading.value = false; richPending.value = false; draft.value = clone(props.block); error.value = ''; refreshDirtyCount() }
 async function save() {
-  richEditor.value?.flush()
   if (saving) return saving
-  if (!dirty.value) { editing.value = false; refreshDirtyCount(); return }
-  const value = clone(draft.value)
+  const session = editSession
   busy.value = true; error.value = ''
-  saving = saveInlineBlock(props.pointId, props.subpointId, value).then(() => {
+  saving = (async () => {
+    await Promise.all([richEditor.value?.flush(), pendingImage])
+    if (!editing.value || session !== editSession) return
+    if (dirty.value) await saveInlineBlock(props.pointId, props.subpointId, clone(draft.value))
     editing.value = false; refreshDirtyCount()
-  }).catch(e => { error.value = e instanceof Error ? e.message : String(e); throw e }).finally(() => { busy.value = false; saving = undefined })
+  })().catch(e => { error.value = e instanceof Error ? e.message : String(e); throw e }).finally(() => { busy.value = false; saving = undefined })
   return saving
 }
 function focusout(event: FocusEvent) {
@@ -60,11 +66,27 @@ function keydown(event: KeyboardEvent) {
   if ((event.metaKey || event.ctrlKey) && (event.key === 's' || event.key === 'Enter')) { event.preventDefault(); void inlineAction(save) }
 }
 function richChanged(html: string) { draft.value = { id: props.block.id, type: 'html', html } }
-async function imageFile(event: Event) {
-  const file = (event.target as HTMLInputElement).files?.[0]; if (!file) return
-  if (!/^image\/(png|jpeg|webp|gif|svg\+xml)$/.test(file.type) || file.size > 8 * 1024 * 1024) { error.value = '请选择 8 MB 以内的 PNG、JPG、WebP、GIF 或 SVG 图片'; return }
-  draft.value.src = await new Promise<string>((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result)); reader.onerror = reject; reader.readAsDataURL(file) })
-  if (!draft.value.alt) draft.value.alt = file.name
+function setImage(file: File) {
+  const session = editSession
+  imageReading.value = true; error.value = ''
+  const task = readImage(file).then(image => {
+    if (!editing.value || session !== editSession || pendingImage !== task) return
+    draft.value.src = image.src
+    if (!draft.value.alt) draft.value.alt = image.alt
+  }).catch(e => { if (session === editSession) error.value = e instanceof Error ? e.message : String(e); throw e }).finally(() => {
+    if (pendingImage === task) { imageReading.value = false; pendingImage = undefined }
+  })
+  pendingImage = task
+  void task.catch(() => {})
+}
+function imageFile(event: Event) {
+  const file = (event.target as HTMLInputElement).files?.[0]; if (file) setImage(file)
+}
+function pasteImage(event: ClipboardEvent) {
+  if (draft.value.type !== 'image') return
+  const file = clipboardImages(event.clipboardData)[0]
+  if (!file) return
+  event.preventDefault(); setImage(file)
 }
 async function loadAnimations() { await ensureAnimations(); catalog.value = [...animations.keys()] }
 async function add(type: keyof typeof inlineKinds) { addMenu.value = false; await addInlineBlock(props.pointId, props.subpointId, type, props.block.id) }
@@ -81,10 +103,10 @@ watch(inlineMode, value => { if (!value) cancel() })
     </div>
     <div v-if="addMenu && active" class="inline-type-menu"><button v-for="(name, kind) in inlineKinds" :key="kind" @click="inlineAction(() => add(kind))">{{ name }}</button></div>
     <div v-if="!editing" data-inline-display :class="{ 'inline-clickable': active }" :tabindex="enabled ? 0 : undefined" :aria-label="enabled ? '点击修改这段内容' : undefined" @click="contentClick" @keydown.enter.self.prevent="enabled && (inlineMode = true); start()"><slot /><p v-if="active && block.type === 'paragraph' && !block.text" class="inline-placeholder">点击这里，写下你的内容…</p></div>
-    <div v-else class="inline-edit-form" :class="{ 'inline-word-form': richBlock }">
+    <div v-else class="inline-edit-form" :class="{ 'inline-word-form': richBlock }" @paste="pasteImage">
       <div v-if="!richBlock" class="inline-edit-caption"><span>{{ inlineKinds[block.type] }}</span><span>离开此处自动保存</span></div>
-      <RichTextEditor v-if="richBlock" ref="richEditor" :initial-html="richInitialHTML" :initial-offset="richInitialOffset" :label="block.type === 'formula' ? '公式' : '直接编辑正文'" @change="richChanged" />
-      <template v-if="draft.type === 'image'"><label class="inline-field">图片链接<input v-model="draft.src" placeholder="粘贴链接，或从电脑上传" /></label><label class="inline-upload">上传图片<input type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml" @change="imageFile" /></label><label class="inline-field">图片说明<input v-model="draft.caption" /></label><label class="inline-field">替代文本<input v-model="draft.alt" /></label><img v-if="draft.src" :src="draft.src" :alt="draft.alt" class="inline-image-preview" /></template>
+      <RichTextEditor v-if="richBlock" ref="richEditor" :initial-html="richInitialHTML" :initial-offset="richInitialOffset" :label="block.type === 'formula' ? '公式' : '直接编辑正文'" @change="richChanged" @pending="richPending = $event" @error="error = $event" />
+      <template v-if="draft.type === 'image'"><div class="inline-image-paste-zone" tabindex="0" role="group" aria-label="粘贴图片" :aria-busy="imageReading"><img v-if="draft.src" :src="draft.src" :alt="draft.alt" class="inline-image-preview" /><strong>{{ imageReading ? '正在插入图片…' : draft.src ? '再粘贴一张即可更换图片' : '点击这里，直接粘贴图片或截图' }}</strong><span>⌘V / Ctrl+V</span></div><label class="inline-upload">也可以选择图片<input type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml,image/avif,image/bmp" @change="imageFile" /></label><details class="inline-image-settings"><summary>图片说明与其他设置</summary><label class="inline-field">图片说明<input v-model="draft.caption" /></label><label class="inline-field">替代文本<input v-model="draft.alt" /></label><label class="inline-field">图片链接<input v-model="draft.src" placeholder="也可以使用图片链接" /></label></details></template>
       <template v-if="draft.type === 'animation'"><label class="inline-field">选择原站动画<select v-model="draft.animation.id"><option v-if="!catalog.length" :value="draft.animation.id">{{ draft.animation.id || '正在读取动画库…' }}</option><option v-for="id in catalog" :key="id" :value="id">{{ animations.get(id)?.ariaLabel || id }}</option></select></label><button @click="loadAnimations">重新载入动画库</button></template>
       <template v-if="draft.type === 'embed'"><label class="inline-field">演示标题<input v-model="draft.title" /></label><details><summary>高级设置</summary><label class="inline-field">演示内容<textarea v-model="draft.html" rows="9" spellcheck="false" /></label></details></template>
       <p v-if="error" :id="'inline-error-' + block.id" class="inline-error" role="alert">{{ error }}</p>

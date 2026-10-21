@@ -1,4 +1,52 @@
-import { expect, test } from '@playwright/test'
+import { expect, test, type Locator } from '@playwright/test'
+
+async function pasteScreenshot(target: Locator) {
+  await target.evaluate(element => {
+    const canvas = document.createElement('canvas')
+    canvas.width = canvas.height = 2
+    const context = canvas.getContext('2d')!
+    context.fillStyle = '#1f49ba'; context.fillRect(0, 0, 2, 2)
+    const bytes = Uint8Array.from(atob(canvas.toDataURL('image/png').split(',')[1]), char => char.charCodeAt(0))
+    const clipboardData = new DataTransfer()
+    clipboardData.items.add(new File([bytes], '粘贴截图.png', { type: 'image/png' }))
+    element.dispatchEvent(new ClipboardEvent('paste', { clipboardData, bubbles: true, cancelable: true }))
+  })
+}
+
+test('正文直接粘贴截图，立即保存并刷新后图片仍存在', async ({ page }) => {
+  await page.goto('/#/knowledge/data-structures/ds-section-5')
+  const block = page.locator('#kb-ds-5-1-1-1')
+  await block.locator('[data-inline-display]').click()
+  const editor = page.getByLabel('直接编辑正文', { exact: true })
+  await editor.fill('图片前的文字')
+  await pasteScreenshot(editor)
+  await page.getByRole('button', { name: '保存这段内容', exact: true }).click()
+  await expect(block.locator('img')).toHaveAttribute('src', /^data:image\/png;base64,/)
+  await expect(block).toContainText('图片前的文字')
+  await page.getByRole('button', { name: '完成编辑', exact: true }).click()
+  await page.reload()
+  await expect(block.locator('img')).toHaveAttribute('src', /^data:image\/png;base64,/)
+  expect(await block.locator('img').evaluate(image => (image as HTMLImageElement).naturalWidth)).toBe(2)
+})
+
+test('新建图片后直接粘贴，离开时自动保存，不必填写链接', async ({ page }) => {
+  await page.goto('/#/knowledge/data-structures/ds-section-5')
+  await page.getByRole('button', { name: '直接编辑', exact: true }).click()
+  const block = page.locator('#kb-ds-5-1-1-1')
+  await block.hover()
+  await block.getByRole('button', { name: '在此处添加内容', exact: true }).click()
+  await block.getByRole('button', { name: '图片', exact: true }).click()
+  const zone = page.getByRole('group', { name: '粘贴图片', exact: true })
+  await expect(zone).toBeFocused()
+  await pasteScreenshot(zone)
+  await page.getByRole('heading', { level: 1 }).first().click()
+  await expect(zone).toHaveCount(0)
+  const image = page.getByRole('img', { name: '粘贴截图.png', exact: true })
+  await expect(image).toHaveAttribute('src', /^data:image\/png;base64,/)
+  await page.getByRole('button', { name: '完成编辑', exact: true }).click()
+  await page.reload()
+  await expect(image).toHaveAttribute('src', /^data:image\/png;base64,/)
+})
 
 test('直接粘贴 GPT 的 Markdown 回答，排版、公式和代码保存后仍完整', async ({ page }) => {
   await page.goto('/#/knowledge/data-structures/ds-section-5')

@@ -2,14 +2,17 @@
 import { nextTick, onMounted, ref } from 'vue'
 import { editableRichHTML, serializeRichHTML } from './richText'
 import { clipboardRichHTML } from './clipboard'
+import { clipboardImages, readImage } from './images'
 
 const props = defineProps<{ initialHtml: string; label?: string; initialOffset?: number }>()
-const emit = defineEmits<{ change: [html: string] }>()
+const emit = defineEmits<{ change: [html: string]; pending: [value: boolean]; error: [message: string] }>()
 const surface = ref<HTMLElement>()
 const composing = ref(false)
 const symbols = ref(false)
 let selection: Range | undefined
 let touched = false
+let pendingPaste: Promise<void> = Promise.resolve()
+let pendingImages = 0
 function protectMath() {
   for (const element of surface.value?.querySelectorAll<HTMLElement>('[data-rich-math], svg') || []) element.contentEditable = 'false'
 }
@@ -38,13 +41,34 @@ function addTable() { format('insertHTML', '<table><thead><tr><th>标题</th><th
 function paste(event: ClipboardEvent) {
   event.preventDefault()
   rememberSelection()
+  const files = clipboardImages(event.clipboardData)
+  if (files.length) {
+    const caret = selection?.cloneRange()
+    pendingImages++; emit('pending', true); emit('error', '')
+    pendingPaste = pendingPaste.catch(() => {}).then(async () => {
+      const images = await Promise.all(files.map(readImage))
+      if (!surface.value) return
+      const container = document.createElement('div')
+      for (const image of images) { const img = document.createElement('img'); img.src = image.src; img.alt = image.alt; container.append(img, document.createElement('br')) }
+      const range = caret && surface.value.contains(caret.commonAncestorContainer) ? caret : document.createRange()
+      if (range !== caret) { range.selectNodeContents(surface.value); range.collapse(false) }
+      if (document.activeElement === surface.value || surface.value.contains(document.activeElement)) {
+        selection = range; format('insertHTML', container.innerHTML)
+      } else {
+        // 已经移开光标时仍在原位置插入，不抢回用户正在编辑的位置。
+        range.deleteContents(); range.insertNode(range.createContextualFragment(container.innerHTML)); changed()
+      }
+    })
+    void pendingPaste.catch(error => emit('error', error instanceof Error ? error.message : String(error))).finally(() => { pendingImages--; emit('pending', pendingImages > 0) })
+    return
+  }
   const text = event.clipboardData?.getData('text/plain') || ''
   const node = window.getSelection()?.anchorNode
   const element = node instanceof Element ? node : node?.parentElement
   if (element?.closest('pre, code')) format('insertText', text)
   else format('insertHTML', clipboardRichHTML(event.clipboardData?.getData('text/html') || '', text))
 }
-function flush() { if (surface.value && touched) emit('change', serializeRichHTML(surface.value)) }
+async function flush() { await pendingPaste; if (surface.value && touched) emit('change', serializeRichHTML(surface.value)) }
 onMounted(async () => {
   if (!surface.value) return
   surface.value.innerHTML = editableRichHTML(props.initialHtml)
@@ -79,7 +103,7 @@ defineExpose({ flush })
       <button type="button" :aria-expanded="symbols" @mousedown.prevent @click="symbols = !symbols">数学符号</button>
       <button type="button" aria-label="清除格式" @mousedown.prevent @click="format('removeFormat')">清除格式</button>
     </div>
-    <p class="rich-paste-hint">可以直接粘贴 GPT 的回答，标题、表格和常见公式会自动排版。</p>
+    <p class="rich-paste-hint">可以直接粘贴图片、截图或 GPT 的回答，文字和常见公式会自动排版。</p>
     <div v-if="symbols" class="rich-symbols" aria-label="常用数学符号"><button v-for="symbol in ['²','³','₀','₁','₂','≤','≥','≠','×','÷','√','∑','π','∞','→','∈']" :key="symbol" type="button" @mousedown.prevent @click="format('insertText', symbol)">{{ symbol }}</button></div>
     <div ref="surface" class="rich-surface" contenteditable="true" role="textbox" :aria-label="label || '直接编辑正文'" aria-multiline="true" spellcheck="false" data-placeholder="直接在这里输入中文…" @input="changed" @compositionstart="composing = true" @compositionend="compositionEnded" @keyup="rememberSelection" @mouseup="rememberSelection" @paste="paste" />
   </div>
