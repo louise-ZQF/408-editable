@@ -64,6 +64,15 @@ export function renderRichHTML(html: string) {
 
 export function serializeRichHTML(element: HTMLElement) {
   const copy = element.cloneNode(true) as HTMLElement
+  for (const formula of copy.querySelectorAll('.katex-display, .katex')) {
+    if (!copy.contains(formula) || formula.closest('[data-rich-math]')) continue
+    const latex = formula.querySelector('annotation[encoding="application/x-tex"]')?.textContent
+    if (!latex) continue
+    const token = document.createElement('span')
+    token.dataset.richMath = latex
+    token.dataset.mathDisplay = formula.classList.contains('katex-display') ? 'block' : 'inline'
+    formula.replaceWith(token)
+  }
   for (const token of copy.querySelectorAll<HTMLElement>('[data-rich-math]')) {
     token.innerHTML = ''
     token.removeAttribute('contenteditable')
