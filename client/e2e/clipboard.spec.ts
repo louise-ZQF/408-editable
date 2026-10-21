@@ -13,6 +13,39 @@ async function pasteScreenshot(target: Locator) {
   })
 }
 
+test('带格式正文中的反斜杠公式会识别，代码中的公式符号保持原样', async ({ page }) => {
+  await page.goto('/#/knowledge/data-structures/ds-section-5')
+  const block = page.locator('#kb-ds-5-1-1-1')
+  await block.locator('[data-inline-display]').click()
+  const editor = page.getByLabel('直接编辑正文', { exact: true })
+  await editor.press('ControlOrMeta+A')
+  await editor.evaluate(element => {
+    const clipboardData = new DataTransfer()
+    clipboardData.setData('text/html', '<p><strong>这里</strong> \\(h\\) 表示高度，\\(N_h\\) 表示高度为 \\(h\\) 时最少需要的结点数。</p><p><code>\\(原样\\)</code></p>')
+    clipboardData.setData('text/plain', '这里 \\(h\\) 表示高度，\\(N_h\\) 表示高度为 \\(h\\) 时最少需要的结点数。')
+    element.dispatchEvent(new ClipboardEvent('paste', { clipboardData, bubbles: true, cancelable: true }))
+  })
+  await expect(editor.locator('.katex')).toHaveCount(3)
+  await expect(editor.locator('code')).toHaveText('\\(原样\\)')
+  await page.getByRole('button', { name: '保存这段内容', exact: true }).click()
+  await expect(block.locator('.katex')).toHaveCount(3)
+  await page.reload()
+  await expect(block.locator('.katex')).toHaveCount(3)
+})
+
+test('以前保存成普通文字的公式重新打开时也会识别', async ({ page }) => {
+  await page.goto('/#/knowledge/data-structures/ds-section-5')
+  const block = page.locator('#kb-ds-5-1-1-1')
+  await block.locator('[data-inline-display]').click()
+  await page.getByLabel('直接编辑正文', { exact: true }).fill('这里 \\(h\\) 表示高度，\\(N_h\\) 表示最少结点数。')
+  await page.getByRole('button', { name: '保存这段内容', exact: true }).click()
+  await expect(block.locator('.katex')).toHaveCount(2)
+  await page.reload()
+  await expect(block.locator('.katex')).toHaveCount(2)
+  await block.locator('[data-inline-display]').click()
+  await expect(page.getByLabel('直接编辑正文', { exact: true }).locator('.katex')).toHaveCount(2)
+})
+
 test('正文直接粘贴截图，立即保存并刷新后图片仍存在', async ({ page }) => {
   await page.goto('/#/knowledge/data-structures/ds-section-5')
   const block = page.locator('#kb-ds-5-1-1-1')
