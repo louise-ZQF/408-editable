@@ -24,7 +24,7 @@ watch(dirty, refreshDirtyCount, { flush: 'sync' })
 const unregister = registerInlineDraft(props.block.id + uid('draft'), { dirty: () => dirty.value, save })
 onBeforeUnmount(unregister)
 async function start() {
-  if (props.enabled && richBlock.value) { richEditor.value?.focus(); return }
+  if (props.enabled && richBlock.value) { await nextTick(); richEditor.value?.focus(); return }
   if (!active.value || editing.value) return
   editSession++; pendingImage = undefined; imageReading.value = false; richPending.value = false
   draft.value = clone(props.block); error.value = ''; editing.value = true; addMenu.value = false
