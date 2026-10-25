@@ -24,20 +24,21 @@ watch(dirty, refreshDirtyCount, { flush: 'sync' })
 const unregister = registerInlineDraft(props.block.id + uid('draft'), { dirty: () => dirty.value, save })
 onBeforeUnmount(unregister)
 async function start() {
-  if (props.enabled && richBlock.value) { await nextTick(); richEditor.value?.focus(); return }
-  if (!active.value || editing.value) return
+  if (!active.value) return
+  if (richBlock.value) { await nextTick(); richEditor.value?.focus(); return }
+  if (editing.value) return
   editSession++; pendingImage = undefined; imageReading.value = false; richPending.value = false
   draft.value = clone(props.block); error.value = ''; editing.value = true; addMenu.value = false
   await nextTick(); root.value?.querySelector<HTMLElement>('.inline-image-paste-zone, textarea, input, select')?.focus()
   if (props.block.type === 'animation') void loadAnimations()
 }
 function contentClick(event: MouseEvent) {
-  if (!props.enabled || window.getSelection()?.toString()) return
+  if (!active.value || window.getSelection()?.toString()) return
   if ((event.target as HTMLElement).closest('a, button, input, select, textarea, iframe, video, [data-no-inline]')) return
-  inlineMode.value = true
   void start()
 }
 function beginRichEditing() {
+  if (!active.value) return
   richFocused.value = true
   if (editing.value) return
   editSession++; draft.value = clone(props.block); error.value = ''; editing.value = true
@@ -60,6 +61,7 @@ function focusout(event: FocusEvent) {
   if (dirty.value) void inlineAction(save)
 }
 function keydown(event: KeyboardEvent) {
+  if (!active.value) return
   if (richBlock.value && props.enabled && event.key === 'Escape') { (document.activeElement as HTMLElement)?.blur(); return }
   if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); cancel() }
   if ((event.metaKey || event.ctrlKey) && (event.key === 's' || event.key === 'Enter')) { event.preventDefault(); void inlineAction(save) }
@@ -92,7 +94,7 @@ async function add(type: keyof typeof inlineKinds) { addMenu.value = false; awai
 watch(() => [inlineFocusId.value, inlineMode.value], async () => {
   if (active.value && inlineFocusId.value === props.block.id) { inlineFocusId.value = ''; await start() }
 }, { immediate: true })
-watch(inlineMode, value => { if (!value && !richBlock.value) cancel() })
+watch(inlineMode, value => { if (!value) { richFocused.value = false; addMenu.value = false; cancel() } })
 </script>
 
 <template>
@@ -101,8 +103,8 @@ watch(inlineMode, value => { if (!value && !richBlock.value) cancel() })
       <button :aria-label="richBlock ? '打开文字格式工具' : '修改这段内容'" @mousedown.prevent @click="richBlock ? richEditor?.toggleToolbar() : start()">{{ richBlock ? '格式' : '编辑' }}</button><button :disabled="first" aria-label="向上移动这段内容" @click="inlineAction(() => moveInlineBlock(pointId, subpointId, block.id, -1))">↑</button><button :disabled="last" aria-label="向下移动这段内容" @click="inlineAction(() => moveInlineBlock(pointId, subpointId, block.id, 1))">↓</button><button :aria-expanded="addMenu" aria-label="在此处添加内容" @click="addMenu = !addMenu">＋</button><button class="inline-danger" aria-label="删除这段内容" @click="inlineAction(() => deleteInlineBlock(pointId, subpointId, block.id))">删除</button>
     </div>
     <div v-if="addMenu && active" class="inline-type-menu"><button v-for="(name, kind) in inlineKinds" :key="kind" @click="inlineAction(() => add(kind))">{{ name }}</button></div>
-    <div v-if="enabled && richBlock" data-inline-display class="inline-clickable"><RichTextEditor ref="richEditor" in-place :version="block" :label="block.type === 'formula' ? '公式' : '直接编辑正文'" @focus="beginRichEditing" @blur="richFocused = false" @change="richChanged" @pending="richPending = $event" @error="error = $event"><slot /></RichTextEditor><p v-if="error" class="inline-error" role="alert">{{ error }}</p></div>
-    <div v-else-if="!editing" data-inline-display :class="{ 'inline-clickable': active }" :tabindex="enabled ? 0 : undefined" :aria-label="enabled ? '点击修改这段内容' : undefined" @click="contentClick" @keydown.enter.self.prevent="enabled && (inlineMode = true); start()"><slot /></div>
+    <div v-if="active && richBlock" data-inline-display class="inline-clickable"><RichTextEditor ref="richEditor" in-place :version="block" :label="block.type === 'formula' ? '公式' : '直接编辑正文'" @focus="beginRichEditing" @blur="richFocused = false" @change="richChanged" @pending="richPending = $event" @error="error = $event"><slot /></RichTextEditor><p v-if="error" class="inline-error" role="alert">{{ error }}</p></div>
+    <div v-else-if="!editing" data-inline-display :class="{ 'inline-clickable': active }" :tabindex="active ? 0 : undefined" :aria-label="active ? '点击修改这段内容' : undefined" @click="contentClick" @keydown.enter.self.prevent="start()"><slot /></div>
     <div v-else class="inline-edit-form" :class="{ 'inline-word-form': richBlock }" @paste="pasteImage">
       <div v-if="!richBlock" class="inline-edit-caption"><span>{{ inlineKinds[block.type] }}</span><span>离开此处自动保存</span></div>
       <template v-if="draft.type === 'image'"><div class="inline-image-paste-zone" tabindex="0" role="group" aria-label="粘贴图片" :aria-busy="imageReading"><img v-if="draft.src" :src="draft.src" :alt="draft.alt" class="inline-image-preview" /><strong>{{ imageReading ? '正在插入图片…' : draft.src ? '再粘贴一张即可更换图片' : '点击这里，直接粘贴图片或截图' }}</strong><span>⌘V / Ctrl+V</span></div><label class="inline-upload">也可以选择图片<input type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml,image/avif,image/bmp" @change="imageFile" /></label><details class="inline-image-settings"><summary>图片说明与其他设置</summary><label class="inline-field">图片说明<input v-model="draft.caption" /></label><label class="inline-field">替代文本<input v-model="draft.alt" /></label><label class="inline-field">图片链接<input v-model="draft.src" placeholder="也可以使用图片链接" /></label></details></template>

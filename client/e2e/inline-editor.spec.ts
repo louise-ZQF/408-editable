@@ -1,17 +1,21 @@
 import { expect, test } from '@playwright/test'
 
-test('提示框保持原来的外观和节点，直接落光标改字并自动保存', async ({ page }) => {
+test('默认只读，进入编辑模式后提示框原位修改并自动保存', async ({ page }) => {
   await page.goto('/#/knowledge/data-structures/ds-section-5')
   const block = page.locator('#kb-ds-5-1-3-6')
   const card = block.locator('aside')
   const background = await card.evaluate(element => getComputedStyle(element).backgroundColor)
+  await expect(page.locator('[contenteditable="true"]')).toHaveCount(0)
+  await card.locator('p').click()
+  await expect(page.locator('[contenteditable="true"]')).toHaveCount(0)
+  await page.getByRole('button', { name: '编辑模式', exact: true }).click()
   await card.locator('p').click()
   await page.keyboard.press('End')
   await page.keyboard.insertText(' 这句话直接在提示框里修改。')
   await expect(card).toContainText('这句话直接在提示框里修改。')
   await expect(card).toHaveCSS('background-color', background)
   await expect(block.locator('.inline-edit-form, .rich-toolbar')).toHaveCount(0)
-  await expect(page.getByRole('button', { name: '关闭工具', exact: true })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: '完成编辑', exact: true })).toBeVisible()
   await page.keyboard.press('Tab')
   await expect(block.locator('.rich-content')).toBeVisible()
   await page.reload()
@@ -20,8 +24,9 @@ test('提示框保持原来的外观和节点，直接落光标改字并自动�
   await expect(block.locator('aside strong')).toHaveText('度数之和与边数')
 })
 
-test('阅读页点击正文修改、自动保存和刷新恢复，不打开工作台', async ({ page }) => {
+test('进入编辑模式后点击正文修改、自动保存和刷新恢复，不打开工作台', async ({ page }) => {
   await page.goto('/#/knowledge/data-structures/ds-section-5')
+  await page.getByRole('button', { name: '编辑模式', exact: true }).click()
   await expect(page.locator('#kb-ds-5-1-1-1')).toBeVisible()
   await page.locator('#kb-ds-5-1-1-1 .inline-clickable').click()
   await page.getByLabel('直接编辑正文', { exact: true }).fill('**直接编辑验收**：正文在原来的页面就能修改。')
@@ -34,7 +39,7 @@ test('阅读页点击正文修改、自动保存和刷新恢复，不打开工�
 
 test('阅读页添加公式、删除段落、撤销以及原地修改标题', async ({ page }) => {
   await page.goto('/#/knowledge/data-structures/ds-section-5')
-  await page.getByRole('button', { name: '编辑工具', exact: true }).click()
+  await page.getByRole('button', { name: '编辑模式', exact: true }).click()
   const block = page.locator('#kb-ds-5-1-1-1')
   await block.hover()
   await block.getByRole('button', { name: '在此处添加内容', exact: true }).click()
@@ -51,7 +56,8 @@ test('阅读页添加公式、删除段落、撤销以及原地修改标题', as
   await page.getByLabel('直接修改标题', { exact: true }).fill('我自己的树概念')
   await page.getByLabel('直接修改标题', { exact: true }).press('Enter')
   await expect(page.locator('#article-ds-5-1-tree-concept')).toContainText('我自己的树概念')
-  await page.getByRole('button', { name: '关闭工具', exact: true }).click()
+  await page.getByRole('button', { name: '完成编辑', exact: true }).click()
+  await expect(page.locator('[contenteditable="true"]')).toHaveCount(0)
   await page.reload()
   await expect(page.locator('#article-ds-5-1-tree-concept')).toContainText('我自己的树概念')
 })
@@ -59,7 +65,7 @@ test('阅读页添加公式、删除段落、撤销以及原地修改标题', as
 test('直接编辑不会把阅读位置跳回顶部，手机上也能使用', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/#/knowledge/data-structures/ds-section-5')
-  await page.getByRole('button', { name: '编辑工具', exact: true }).click()
+  await page.getByRole('button', { name: '编辑模式', exact: true }).click()
   const block = page.locator('#kb-ds-5-1-3-1')
   await block.scrollIntoViewIfNeeded()
   await block.locator('[data-inline-display]').click()
@@ -72,5 +78,5 @@ test('直接编辑不会把阅读位置跳回顶部，手机上也能使用', as
   expect(position!.y).toBeLessThan(844)
   const dimensions = await page.locator('.inline-edit-bar').evaluate(el => ({ right: el.getBoundingClientRect().right, width: innerWidth }))
   expect(dimensions.right).toBeLessThanOrEqual(dimensions.width)
-  await page.getByRole('button', { name: '关闭工具', exact: true }).click()
+  await page.getByRole('button', { name: '完成编辑', exact: true }).click()
 })

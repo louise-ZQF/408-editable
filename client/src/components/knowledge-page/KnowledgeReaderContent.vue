@@ -83,10 +83,9 @@ const emit = defineEmits<{ page: [page: number] }>();
                   <InlineTitle :title="entry.point.title" :node-id="entry.point.id" />
                 </h2>
               </header>
-              <button class="mb-5 rounded-md border border-[#d7e0ee] px-3 py-2 text-xs text-[#54729e] hover:bg-[#f3f6fc]" @click="inlineMode = true">显示文章增删工具</button>
               <KnowledgeArticle
                 :article="entry.article"
-                :editable="true"
+                :editable="inlineMode"
                 :exam-links="entry.examLinks"
               />
             </section>

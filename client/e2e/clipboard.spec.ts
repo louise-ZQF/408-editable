@@ -15,6 +15,7 @@ async function pasteScreenshot(target: Locator) {
 
 test('带格式正文中的反斜杠公式会识别，代码中的公式符号保持原样', async ({ page }) => {
   await page.goto('/#/knowledge/data-structures/ds-section-5')
+  await page.getByRole('button', { name: '编辑模式', exact: true }).click()
   const block = page.locator('#kb-ds-5-1-1-1')
   await block.locator('[data-inline-display]').click()
   const editor = page.getByLabel('直接编辑正文', { exact: true })
@@ -35,6 +36,7 @@ test('带格式正文中的反斜杠公式会识别，代码中的公式符号�
 
 test('以前保存成普通文字的公式重新打开时也会识别', async ({ page }) => {
   await page.goto('/#/knowledge/data-structures/ds-section-5')
+  await page.getByRole('button', { name: '编辑模式', exact: true }).click()
   const block = page.locator('#kb-ds-5-1-1-1')
   await block.locator('[data-inline-display]').click()
   await page.getByLabel('直接编辑正文', { exact: true }).fill('这里 \\(h\\) 表示高度，\\(N_h\\) 表示最少结点数。')
@@ -42,12 +44,14 @@ test('以前保存成普通文字的公式重新打开时也会识别', async ({
   await expect(block.locator('.katex')).toHaveCount(2)
   await page.reload()
   await expect(block.locator('.katex')).toHaveCount(2)
+  await page.getByRole('button', { name: '编辑模式', exact: true }).click()
   await block.locator('[data-inline-display]').click()
   await expect(page.getByLabel('直接编辑正文', { exact: true }).locator('.katex')).toHaveCount(2)
 })
 
 test('正文直接粘贴截图，立即保存并刷新后图片仍存在', async ({ page }) => {
   await page.goto('/#/knowledge/data-structures/ds-section-5')
+  await page.getByRole('button', { name: '编辑模式', exact: true }).click()
   const block = page.locator('#kb-ds-5-1-1-1')
   await block.locator('[data-inline-display]').click()
   const editor = page.getByLabel('直接编辑正文', { exact: true })
@@ -63,7 +67,7 @@ test('正文直接粘贴截图，立即保存并刷新后图片仍存在', async
 
 test('新建图片后直接粘贴，离开时自动保存，不必填写链接', async ({ page }) => {
   await page.goto('/#/knowledge/data-structures/ds-section-5')
-  await page.getByRole('button', { name: '编辑工具', exact: true }).click()
+  await page.getByRole('button', { name: '编辑模式', exact: true }).click()
   const block = page.locator('#kb-ds-5-1-1-1')
   await block.hover()
   await block.getByRole('button', { name: '在此处添加内容', exact: true }).click()
@@ -81,6 +85,7 @@ test('新建图片后直接粘贴，离开时自动保存，不必填写链接',
 
 test('直接粘贴 GPT 的 Markdown 回答，排版、公式和代码保存后仍完整', async ({ page }) => {
   await page.goto('/#/knowledge/data-structures/ds-section-5')
+  await page.getByRole('button', { name: '编辑模式', exact: true }).click()
   const block = page.locator('#kb-ds-5-1-1-1')
   await block.locator('[data-inline-display]').click()
   const editor = page.getByLabel('直接编辑正文', { exact: true })
@@ -108,6 +113,7 @@ test('直接粘贴 GPT 的 Markdown 回答，排版、公式和代码保存后�
 
 test('选中网页回答复制时保留富文本，过滤无关按钮和脚本', async ({ page }) => {
   await page.goto('/#/knowledge/data-structures/ds-section-5')
+  await page.getByRole('button', { name: '编辑模式', exact: true }).click()
   const block = page.locator('#kb-ds-5-1-1-1')
   await block.locator('[data-inline-display]').click()
   const editor = page.getByLabel('直接编辑正文', { exact: true })
