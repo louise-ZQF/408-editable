@@ -164,7 +164,12 @@ function selectSuggestion(suggestion: SearchSuggestion) {
   if (!suggestion.sectionId) return;
   recordSearch(sidebarQuery.value);
   closeSearchPanel();
-  emit("selectSection", suggestion.sectionId);
+  router.push({
+    name: 'knowledge',
+    params: { bookId: props.bookId, sectionId: suggestion.sectionId },
+    query: { q: sidebarQuery.value.trim() },
+    hash: suggestion.kind === 'point' ? `#article-${suggestion.id}` : '',
+  });
 }
 
 function handleSearchPanelClick(item: SearchPanelItem) {

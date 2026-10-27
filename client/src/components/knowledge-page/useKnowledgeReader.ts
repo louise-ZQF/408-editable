@@ -7,6 +7,7 @@ import { getArticleForPoint } from "@/content/knowledge-articles/registry";
 import type { KnowledgeArticleData } from "@/content/knowledge-articles/types";
 import type { Book, ExamKnowledgeLink, KnowledgePoint, Section } from "@/types";
 import type { SectionArticleEntry } from "./pageTypes";
+import { knowledgeAnchor, useKnowledgeLocation } from './useKnowledgeLocation';
 
 /** 未登记独立文章的 point 的回退文章：仅展示知识点摘要。 */
 function buildFallbackArticle(point: KnowledgePoint): KnowledgeArticleData {
@@ -42,7 +43,12 @@ export function useKnowledgeReader() {
   const bookId = computed(() =>
     String(route.params.bookId || books[0]?.id || "computer-network"),
   );
-  const requestedBlock = computed(() => String(route.query.block || ""));
+  const requestedBlock = computed(() => knowledgeAnchor(route.query.block, route.hash));
+  useKnowledgeLocation(
+    requestedBlock,
+    computed(() => String(route.query.q || '')),
+    computed(() => !loading.value && section.value?.id === routeContentId.value),
+  );
   const tocEntries = computed(() =>
     articleEntries.value.map((entry) => ({
       id: entry.point.id,
@@ -95,21 +101,6 @@ export function useKnowledgeReader() {
     if (target) selectSection(target.id);
   }
 
-  function scrollToRequestedBlock(retry = 0) {
-    const id = requestedBlock.value;
-    if (!id) return;
-    const element = document.getElementById(id);
-    if (element) {
-      const top =
-        element.getBoundingClientRect().top +
-        window.scrollY -
-        window.innerHeight / 2;
-      document.documentElement.scrollTop = Math.max(0, top);
-    } else if (retry < 5) {
-      setTimeout(() => scrollToRequestedBlock(retry + 1), 100);
-    }
-  }
-
   let loadSequence = 0;
   async function loadSection(id: string, background = false) {
     const sequence = ++loadSequence;
@@ -125,6 +116,7 @@ export function useKnowledgeReader() {
             name: "knowledge",
             params: { bookId: bookId.value, sectionId: firstSection.id },
             query: route.query,
+            hash: route.hash,
           });
         } else { section.value = undefined; articleEntries.value = []; }
         return;
@@ -134,6 +126,7 @@ export function useKnowledgeReader() {
           name: "knowledge",
           params: { bookId: bookId.value, sectionId: nextSection.id },
           query: route.query,
+          hash: route.hash,
         });
         return;
       }
@@ -180,7 +173,6 @@ export function useKnowledgeReader() {
       if (sequence === loadSequence) {
         loading.value = false;
         await nextTick();
-        if (!background) scrollToRequestedBlock();
       }
     }
   }
@@ -224,15 +216,6 @@ export function useKnowledgeReader() {
     });
   }
 
-  watch(loading, (isLoading) => {
-    if (!isLoading && section.value && requestedBlock.value) {
-      nextTick().then(() => scrollToRequestedBlock(0));
-    }
-  });
-  watch(requestedBlock, () => {
-    if (!section.value || loading.value) return;
-    nextTick().then(() => scrollToRequestedBlock(0));
-  });
   watch(bookId, () => void loadBook());
   watch(routeContentId, (id) => {
     if (!id || !book.value || book.value.id !== bookId.value) return;

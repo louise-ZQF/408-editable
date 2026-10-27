@@ -44,8 +44,11 @@ const emit = defineEmits<{
           v-for="(result, index) in results"
           :key="result.route"
           class="result-item relative px-[26px] py-[18px] pr-14 border-b border-[#e4eaf2] last:border-b-0 transition-colors duration-150 hover:bg-[#f7f9fd] cursor-pointer max-[820px]:pl-[18px] max-[820px]:pr-[42px]"
+          role="link"
+          tabindex="0"
           :style="{ '--delay': index * 80 + 'ms' }"
           @click="emit('select', result)"
+          @keydown.enter.prevent="emit('select', result)"
         >
           <div class="text-xs text-[#7082a1] mb-1.5 flex items-center gap-2">
             <span
@@ -62,6 +65,10 @@ const emit = defineEmits<{
           <h2 v-else class="m-0 mb-[5px] text-[17px] leading-[1.35]">
             {{ result.title }}
           </h2>
+          <p
+            v-if="result.type === 'knowledge' && result.subpointTitle"
+            class="mb-2 text-xs text-[#31559e]"
+          >定位到：{{ result.subpointTitle }}</p>
           <p
             v-if="result.snippet"
             class="m-0 text-[#445675] text-sm leading-[1.65] line-clamp-2 overflow-hidden"

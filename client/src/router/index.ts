@@ -15,6 +15,7 @@ const router = createRouter({
   history: createWebHashHistory(),
   scrollBehavior: (to, from, savedPosition) => {
     if (savedPosition) return savedPosition
+    if (to.name === 'knowledge' && (to.hash || to.query.block)) return undefined
     if (to.path === from.path) return undefined
     return { top: 0 }
   },

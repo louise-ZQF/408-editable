@@ -120,7 +120,7 @@ export function searchKnowledge(
         .filter(Boolean)
         .join(" › "),
       snippet: extractSnippet(snippetText || hit.sectionTitle, query),
-      route: anchor ? `${hit.route}#${anchor}` : hit.route,
+      route: anchor ? `${hit.route}?q=${encodeURIComponent(query)}#${encodeURIComponent(anchor)}` : hit.route,
       blockId,
       blockIds: hit.allBlockIds,
       examCount: hit.examCount,
