@@ -1,5 +1,6 @@
 import type { KnowledgeArticleData } from '@/content/knowledge-articles/types'
 import protocolMap from '@/assets/computer-networks/network-architecture/408-protocol-map.svg'
+import encapsulationMap from '@/assets/computer-networks/network-architecture/408-protocol-encapsulation.svg'
 
 export const networkProtocolSummaryArticle: KnowledgeArticleData = {
   pointId: 'kp-network-protocol-summary',
@@ -26,6 +27,26 @@ export const networkProtocolSummaryArticle: KnowledgeArticleData = {
           id: 'kb-network-protocol-summary-core-sources',
           type: 'paragraph',
           text: '**范围与协议关系核对：**[高校公开的《2025 年计算机学科专业基础考试大纲》（计算机网络部分）](https://www.uwh.edu.cn/uploads/article/20250609/660428d58334252302af691bf99e064e.pdf)；[DNS：RFC 1035 §4.2](https://www.rfc-editor.org/rfc/rfc1035#section-4.2)、[DHCP：RFC 2131 §4.1](https://www.rfc-editor.org/rfc/rfc2131.html#section-4.1)、[RIP：RFC 2453 §3.6](https://www.rfc-editor.org/rfc/rfc2453#section-3.6)、[BGP：RFC 4271 §1](https://www.rfc-editor.org/rfc/rfc4271#section-1)、[OSPF：RFC 2328 §4.3](https://www.rfc-editor.org/rfc/rfc2328.html#section-4.3)、[ARP：RFC 1122 §2.3.2（链路层章节）](https://www.rfc-editor.org/rfc/rfc1122.html#section-2.3.2)。本图是复习主线筛选，并非某一年度大纲的完整替代。',
+        },
+      ],
+    },
+    {
+      id: 'network-protocol-summary-encapsulation-map',
+      title: '408 核心协议封装关系图：端口、TCP/UDP 与 IP',
+      blocks: [
+        {
+          id: 'kb-network-protocol-summary-encapsulation-map',
+          type: 'image',
+          src: encapsulationMap,
+          fullWidth: true,
+          alt: '408 TCP/IP 协议封装关系图：DNS 53、DHCP 67/68、RIP 520 使用 UDP；DNS 53、FTP 21/20、SMTP 25、POP3 110、HTTP 80、BGP 179 使用 TCP。ICMP、UDP、TCP、OSPF 连接 IPv4 首部协议字段 1、17、6、89，再由 IP 数据报连接局域网、广域网链路。ARP 在网络接口层进行本地地址解析，不是 IP 载荷。',
+          caption: '沿箭头查看应用协议、端口、传输层、IP 与底层链路的封装关系。点击可打开高清矢量图。',
+          sourceImport: { path: '@/assets/computer-networks/network-architecture/408-protocol-encapsulation.svg', localName: 'encapsulationMap', kind: 'default' },
+        },
+        {
+          id: 'kb-network-protocol-summary-encapsulation-reading',
+          type: 'paragraph',
+          text: '**读图要点：**这张图采用 TCP/IP 的应用层、传输层、网络层、网络接口层展示封装关系，与前面的 OSI 七层对齐图配合阅读。应用协议先通过端口区分进程，再交给 TCP 或 UDP；TCP、UDP、ICMP、OSPF 通过 IPv4 首部的协议字段区分，字段值分别为 **6、17、1、89**。\n\n**DNS 同时使用 TCP 和 UDP**，因此在两组各出现一次，服务端口都是 53。**OSPF、ICMP 直接使用 IP**，不经过 TCP/UDP。图中的局域网和广域网表示 IP 数据报可由不同底层链路承载；**ARP 是本地链路地址解析，不封装在 IP 数据报中**。',
         },
       ],
     },

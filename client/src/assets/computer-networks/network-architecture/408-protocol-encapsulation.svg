@@ -1,0 +1,131 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1110" viewBox="0 0 1440 1110" role="img" aria-labelledby="title desc">
+<title id="title">408 核心网络协议的 TCP/IP 封装关系</title>
+<desc id="desc">DNS、DHCP、RIP 经 UDP，DNS、FTP、SMTP、POP3、HTTP、BGP 经 TCP。协议节点连接端口号，再连接 TCP 或 UDP；TCP、UDP、ICMP、OSPF 分别以 IPv4 协议号 6、17、1、89 封装到 IP。IP 数据报由局域网或广域网链路承载；ARP 单列于网络接口层。</desc>
+<rect width="1440" height="1110" fill="#fff"/>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#8297af" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<g font-family="PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif">
+<text x="32" y="62" font-size="42" fill="#102847" font-weight="750" text-anchor="start">408 核心协议封装关系图</text>
+<text x="32" y="108" font-size="24" fill="#526680" font-weight="400" text-anchor="start">应用协议 → 端口号 → TCP / UDP → IP → 底层网络</text>
+<text x="1392" y="62" font-size="18" fill="#526680" font-weight="600" text-anchor="end">TCP/IP ENCAPSULATION</text>
+<line x1="32" y1="132" x2="1392" y2="132" stroke="#d9e3ef" stroke-width="2"/>
+<text x="112" y="167" font-size="19" fill="#526680" font-weight="600" text-anchor="middle">层级 / 数据单位</text>
+<text x="224" y="167" font-size="21" fill="#1456a0" font-weight="650" text-anchor="start">使用 UDP 的应用协议</text>
+<text x="630" y="167" font-size="21" fill="#75429c" font-weight="650" text-anchor="start">使用 TCP 的应用协议</text>
+<rect x="28" y="188" width="166" height="168" rx="10" fill="#eaf3ff" stroke="none" stroke-width="1.6"/>
+<text x="111" y="245" font-size="29" fill="#1456a0" font-weight="700" text-anchor="middle">应用层</text>
+<text x="111" y="289" font-size="23" fill="#42658f" font-weight="400" text-anchor="middle">报文</text>
+<text x="111" y="322" font-size="20" fill="#526680" font-weight="400" text-anchor="middle">Message</text>
+<rect x="224" y="188" width="386" height="168" rx="10" fill="#f5f9ff" stroke="#dce7f4" stroke-width="1.6"/>
+<rect x="618" y="188" width="774" height="168" rx="10" fill="#faf7fe" stroke="#e7deef" stroke-width="1.6"/>
+<rect x="236" y="204" width="110" height="50" rx="10" fill="#e8f2ff" stroke="none" stroke-width="1.6"/>
+<text x="291" y="237" font-size="24" fill="#1456a0" font-weight="700" text-anchor="middle">DNS</text>
+<path d="M 291 255 L 291 281" fill="none" stroke="#8297af" stroke-width="2.1" marker-end="url(#arrow)"/>
+<rect x="236" y="290" width="110" height="42" rx="7" fill="#fff" stroke="#ced9e7" stroke-width="1.6"/>
+<text x="291" y="319" font-size="21" fill="#3d536e" font-weight="600" text-anchor="middle">53</text>
+<path d="M 291 333 L 291 391" fill="none" stroke="#8297af" stroke-width="2.1" marker-end="url(#arrow)"/>
+<rect x="362" y="204" width="110" height="50" rx="10" fill="#e8f2ff" stroke="none" stroke-width="1.6"/>
+<text x="417" y="237" font-size="24" fill="#1456a0" font-weight="700" text-anchor="middle">DHCP</text>
+<path d="M 417 255 L 417 281" fill="none" stroke="#8297af" stroke-width="2.1" marker-end="url(#arrow)"/>
+<rect x="362" y="290" width="110" height="42" rx="7" fill="#fff" stroke="#ced9e7" stroke-width="1.6"/>
+<text x="417" y="319" font-size="21" fill="#3d536e" font-weight="600" text-anchor="middle">67 / 68</text>
+<path d="M 417 333 L 417 391" fill="none" stroke="#8297af" stroke-width="2.1" marker-end="url(#arrow)"/>
+<rect x="488" y="204" width="110" height="50" rx="10" fill="#e8f2ff" stroke="none" stroke-width="1.6"/>
+<text x="543" y="237" font-size="24" fill="#1456a0" font-weight="700" text-anchor="middle">RIP</text>
+<path d="M 543 255 L 543 281" fill="none" stroke="#8297af" stroke-width="2.1" marker-end="url(#arrow)"/>
+<rect x="488" y="290" width="110" height="42" rx="7" fill="#fff" stroke="#ced9e7" stroke-width="1.6"/>
+<text x="543" y="319" font-size="21" fill="#3d536e" font-weight="600" text-anchor="middle">520</text>
+<path d="M 543 333 L 543 391" fill="none" stroke="#8297af" stroke-width="2.1" marker-end="url(#arrow)"/>
+<rect x="630" y="204" width="110" height="50" rx="10" fill="#f0e8fa" stroke="none" stroke-width="1.6"/>
+<text x="685" y="237" font-size="24" fill="#75429c" font-weight="700" text-anchor="middle">DNS</text>
+<path d="M 685 255 L 685 281" fill="none" stroke="#8297af" stroke-width="2.1" marker-end="url(#arrow)"/>
+<rect x="630" y="290" width="110" height="42" rx="7" fill="#fff" stroke="#ced9e7" stroke-width="1.6"/>
+<text x="685" y="319" font-size="21" fill="#3d536e" font-weight="600" text-anchor="middle">53</text>
+<path d="M 685 333 L 685 391" fill="none" stroke="#8297af" stroke-width="2.1" marker-end="url(#arrow)"/>
+<rect x="756" y="204" width="110" height="50" rx="10" fill="#f0e8fa" stroke="none" stroke-width="1.6"/>
+<text x="811" y="237" font-size="24" fill="#75429c" font-weight="700" text-anchor="middle">FTP</text>
+<path d="M 811 255 L 811 281" fill="none" stroke="#8297af" stroke-width="2.1" marker-end="url(#arrow)"/>
+<rect x="756" y="290" width="110" height="42" rx="7" fill="#fff" stroke="#ced9e7" stroke-width="1.6"/>
+<text x="811" y="319" font-size="21" fill="#3d536e" font-weight="600" text-anchor="middle">21 / 20*</text>
+<path d="M 811 333 L 811 391" fill="none" stroke="#8297af" stroke-width="2.1" marker-end="url(#arrow)"/>
+<rect x="882" y="204" width="110" height="50" rx="10" fill="#f0e8fa" stroke="none" stroke-width="1.6"/>
+<text x="937" y="237" font-size="24" fill="#75429c" font-weight="700" text-anchor="middle">SMTP</text>
+<path d="M 937 255 L 937 281" fill="none" stroke="#8297af" stroke-width="2.1" marker-end="url(#arrow)"/>
+<rect x="882" y="290" width="110" height="42" rx="7" fill="#fff" stroke="#ced9e7" stroke-width="1.6"/>
+<text x="937" y="319" font-size="21" fill="#3d536e" font-weight="600" text-anchor="middle">25</text>
+<path d="M 937 333 L 937 391" fill="none" stroke="#8297af" stroke-width="2.1" marker-end="url(#arrow)"/>
+<rect x="1008" y="204" width="110" height="50" rx="10" fill="#f0e8fa" stroke="none" stroke-width="1.6"/>
+<text x="1063" y="237" font-size="24" fill="#75429c" font-weight="700" text-anchor="middle">POP3</text>
+<path d="M 1063 255 L 1063 281" fill="none" stroke="#8297af" stroke-width="2.1" marker-end="url(#arrow)"/>
+<rect x="1008" y="290" width="110" height="42" rx="7" fill="#fff" stroke="#ced9e7" stroke-width="1.6"/>
+<text x="1063" y="319" font-size="21" fill="#3d536e" font-weight="600" text-anchor="middle">110</text>
+<path d="M 1063 333 L 1063 391" fill="none" stroke="#8297af" stroke-width="2.1" marker-end="url(#arrow)"/>
+<rect x="1134" y="204" width="110" height="50" rx="10" fill="#f0e8fa" stroke="none" stroke-width="1.6"/>
+<text x="1189" y="237" font-size="24" fill="#75429c" font-weight="700" text-anchor="middle">HTTP</text>
+<path d="M 1189 255 L 1189 281" fill="none" stroke="#8297af" stroke-width="2.1" marker-end="url(#arrow)"/>
+<rect x="1134" y="290" width="110" height="42" rx="7" fill="#fff" stroke="#ced9e7" stroke-width="1.6"/>
+<text x="1189" y="319" font-size="21" fill="#3d536e" font-weight="600" text-anchor="middle">80</text>
+<path d="M 1189 333 L 1189 391" fill="none" stroke="#8297af" stroke-width="2.1" marker-end="url(#arrow)"/>
+<rect x="1260" y="204" width="110" height="50" rx="10" fill="#f0e8fa" stroke="none" stroke-width="1.6"/>
+<text x="1315" y="237" font-size="24" fill="#75429c" font-weight="700" text-anchor="middle">BGP</text>
+<path d="M 1315 255 L 1315 281" fill="none" stroke="#8297af" stroke-width="2.1" marker-end="url(#arrow)"/>
+<rect x="1260" y="290" width="110" height="42" rx="7" fill="#fff" stroke="#ced9e7" stroke-width="1.6"/>
+<text x="1315" y="319" font-size="21" fill="#3d536e" font-weight="600" text-anchor="middle">179</text>
+<path d="M 1315 333 L 1315 391" fill="none" stroke="#8297af" stroke-width="2.1" marker-end="url(#arrow)"/>
+<rect x="28" y="386" width="166" height="152" rx="10" fill="#f1edfa" stroke="none" stroke-width="1.6"/>
+<text x="111" y="434" font-size="29" fill="#734199" font-weight="700" text-anchor="middle">传输层</text>
+<text x="111" y="474" font-size="20" fill="#526680" font-weight="400" text-anchor="middle">TCP 报文段</text>
+<text x="111" y="505" font-size="20" fill="#526680" font-weight="400" text-anchor="middle">UDP 数据报</text>
+<rect x="224" y="400" width="386" height="108" rx="10" fill="#eaf3ff" stroke="#cddff3" stroke-width="1.6"/>
+<rect x="618" y="400" width="774" height="108" rx="10" fill="#f0e8fa" stroke="#dbcaec" stroke-width="1.6"/>
+<text x="417" y="445" font-size="36" fill="#1456a0" font-weight="750" text-anchor="middle">UDP</text>
+<text x="417" y="483" font-size="22" fill="#42658f" font-weight="400" text-anchor="middle">无连接 · 不保证可靠交付</text>
+<text x="1005" y="445" font-size="36" fill="#75429c" font-weight="750" text-anchor="middle">TCP</text>
+<text x="1005" y="483" font-size="22" fill="#805b9e" font-weight="400" text-anchor="middle">面向连接 · 可靠字节流</text>
+<rect x="28" y="560" width="166" height="264" rx="10" fill="#e9f7f3" stroke="none" stroke-width="1.6"/>
+<text x="111" y="659" font-size="29" fill="#176b64" font-weight="700" text-anchor="middle">网络层</text>
+<text x="111" y="702" font-size="22" fill="#426d64" font-weight="400" text-anchor="middle">IP 数据报</text>
+<text x="111" y="734" font-size="20" fill="#526680" font-weight="400" text-anchor="middle">Packet</text>
+<rect x="224" y="560" width="1168" height="264" rx="10" fill="#f5fbf8" stroke="#d9ebe3" stroke-width="1.6"/>
+<path d="M 300 628 L 300 670" fill="none" stroke="#8297af" stroke-width="2.1" marker-end="url(#arrow)"/>
+<rect x="260" y="680" width="80" height="44" rx="8" fill="#fff" stroke="#bdd8cf" stroke-width="1.6"/>
+<text x="300" y="711" font-size="25" fill="#176b64" font-weight="700" text-anchor="middle">1</text>
+<path d="M 300 725 L 300 736" fill="none" stroke="#8297af" stroke-width="2.1" marker-end="url(#arrow)"/>
+<path d="M 417 508 L 417 670" fill="none" stroke="#8297af" stroke-width="2.1" marker-end="url(#arrow)"/>
+<rect x="377" y="680" width="80" height="44" rx="8" fill="#fff" stroke="#bdd8cf" stroke-width="1.6"/>
+<text x="417" y="711" font-size="25" fill="#176b64" font-weight="700" text-anchor="middle">17</text>
+<path d="M 417 725 L 417 736" fill="none" stroke="#8297af" stroke-width="2.1" marker-end="url(#arrow)"/>
+<path d="M 1005 508 L 1005 670" fill="none" stroke="#8297af" stroke-width="2.1" marker-end="url(#arrow)"/>
+<rect x="965" y="680" width="80" height="44" rx="8" fill="#fff" stroke="#bdd8cf" stroke-width="1.6"/>
+<text x="1005" y="711" font-size="25" fill="#176b64" font-weight="700" text-anchor="middle">6</text>
+<path d="M 1005 725 L 1005 736" fill="none" stroke="#8297af" stroke-width="2.1" marker-end="url(#arrow)"/>
+<path d="M 1268 628 L 1268 670" fill="none" stroke="#8297af" stroke-width="2.1" marker-end="url(#arrow)"/>
+<rect x="1228" y="680" width="80" height="44" rx="8" fill="#fff" stroke="#bdd8cf" stroke-width="1.6"/>
+<text x="1268" y="711" font-size="25" fill="#176b64" font-weight="700" text-anchor="middle">89</text>
+<path d="M 1268 725 L 1268 736" fill="none" stroke="#8297af" stroke-width="2.1" marker-end="url(#arrow)"/>
+<rect x="244" y="578" width="112" height="50" rx="9" fill="#e1f2ec" stroke="#c4dfd4" stroke-width="1.6"/>
+<text x="300" y="611" font-size="24" fill="#176b64" font-weight="700" text-anchor="middle">ICMP</text>
+<rect x="1212" y="578" width="112" height="50" rx="9" fill="#e1f2ec" stroke="#c4dfd4" stroke-width="1.6"/>
+<text x="1268" y="611" font-size="24" fill="#176b64" font-weight="700" text-anchor="middle">OSPF</text>
+<text x="700" y="704" font-size="23" fill="#426d64" font-weight="600" text-anchor="middle">IPv4 首部：协议字段</text>
+<rect x="224" y="738" width="1168" height="86" rx="10" fill="#dcefe6" stroke="#bfdcce" stroke-width="1.6"/>
+<text x="808" y="777" font-size="33" fill="#176b64" font-weight="750" text-anchor="middle">IP（IPv4 / IPv6）</text>
+<text x="808" y="808" font-size="22" fill="#426d64" font-weight="400" text-anchor="middle">无连接 · 尽最大努力交付 IP 数据报</text>
+<rect x="28" y="860" width="166" height="126" rx="10" fill="#fff3de" stroke="none" stroke-width="1.6"/>
+<text x="111" y="911" font-size="26" fill="#93631e" font-weight="700" text-anchor="middle">网络接口层</text>
+<text x="111" y="951" font-size="22" fill="#826741" font-weight="400" text-anchor="middle">帧 Frame</text>
+<rect x="224" y="860" width="1168" height="126" rx="10" fill="#fffbf3" stroke="#eadfc9" stroke-width="1.6"/>
+<path d="M 808 825 V 846 H 480 V 873" fill="none" stroke="#8297af" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M 808 825 V 846 H 1040 V 873" fill="none" stroke="#8297af" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<rect x="300" y="880" width="360" height="84" rx="10" fill="#fff" stroke="#e6d9c1" stroke-width="1.6"/>
+<rect x="860" y="880" width="360" height="84" rx="10" fill="#fff" stroke="#e6d9c1" stroke-width="1.6"/>
+<text x="480" y="915" font-size="27" fill="#93631e" font-weight="700" text-anchor="middle">局域网</text>
+<text x="480" y="947" font-size="21" fill="#826741" font-weight="400" text-anchor="middle">以太网 / Wi-Fi</text>
+<text x="1040" y="915" font-size="27" fill="#93631e" font-weight="700" text-anchor="middle">广域网</text>
+<text x="1040" y="947" font-size="21" fill="#826741" font-weight="400" text-anchor="middle">PPP 等点对点链路</text>
+<text x="1318" y="891" font-size="18" fill="#826741" font-weight="400" text-anchor="middle">本地地址解析</text>
+<rect x="1244" y="906" width="148" height="58" rx="10" fill="#fff1cc" stroke="#e7d3a6" stroke-width="1.6"/>
+<text x="1318" y="945" font-size="28" fill="#93631e" font-weight="700" text-anchor="middle">ARP</text>
+<text x="32" y="1025" font-size="21" fill="#526680" font-weight="400" text-anchor="start">DNS 在两组中出现：支持 UDP 与 TCP，服务端口均为 53。</text>
+<text x="32" y="1061" font-size="20" fill="#526680" font-weight="400" text-anchor="start">* FTP：21 为控制端口，20 为主动方式数据连接的服务器端口；DHCP：67 服务器 / 68 客户端。</text>
+<text x="32" y="1094" font-size="20" fill="#526680" font-weight="400" text-anchor="start">1 / 17 / 6 / 89 是 IPv4 协议号，不是端口号；ARP 不封装在 IP 数据报中。</text>
+</g></svg>
