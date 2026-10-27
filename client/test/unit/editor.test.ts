@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
-import { changeWorkspace, defaults, snapshot, undo, validateWorkspace, workspace } from '@/editor/store'
+import { addNetworkProtocolSummary, changeWorkspace, defaults, snapshot, undo, validateWorkspace, workspace } from '@/editor/store'
 import { addNode, deleteNode, findNode, getEditableArticle, restoreItem } from '@/editor/content'
-import { knowledgeBooks } from '@/content/knowledge-tree'
+import { computerNetworkBook, knowledgeBooks } from '@/content/knowledge-tree'
 import { getExamIndex, getQuestionById, queryIndexIds } from '@/services/examRepository'
 import type { Exam } from '@/types'
 
@@ -15,6 +15,19 @@ beforeEach(async () => {
 })
 
 describe('个人教材内容闭环', () => {
+  it('旧个人目录补入协议汇总时保留个人修改，且以后删除不会被重新加入', () => {
+    const chapter = computerNetworkBook.chapters[0]
+    const data = snapshot()
+    delete data.contentAdditions
+    data.books = [{ ...structuredClone(computerNetworkBook), chapters: [{ id: 'my-network-chapter', title: '我的网络笔记', layer: 'TOP', sections: [] }] }]
+    const articles = JSON.stringify(data.articles)
+    addNetworkProtocolSummary(data, chapter)
+    expect(data.books[0].chapters.map(item => item.id)).toEqual([chapter.id, 'my-network-chapter'])
+    expect(JSON.stringify(data.articles)).toBe(articles)
+    data.books[0].chapters.shift()
+    addNetworkProtocolSummary(data, chapter)
+    expect(data.books[0].chapters.map(item => item.title)).toEqual(['我的网络笔记'])
+  })
   it('添加、删除、恢复整本教材以及下级文章', async () => {
     const book = addNode(); await nextTick()
     const chapter = addNode(book); await nextTick()

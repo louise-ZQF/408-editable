@@ -1,5 +1,5 @@
 import { reactive, ref } from 'vue'
-import type { Book, Exam } from '@/types'
+import type { Book, Chapter, Exam } from '@/types'
 import type { KnowledgeArticleData } from '@/content/knowledge-articles/types'
 
 export type TrashItem = { id: string; kind: string; title: string; parentId: string; index: number; data: any; time: number }
@@ -14,6 +14,7 @@ export type WorkspaceData = {
   format: '408-editable-v1'; updatedAt: number; books: Book[] | null;
   articles: Record<string, KnowledgeArticleData>; exams: Record<string, Exam>;
   deletedExams: string[]; trash: TrashItem[]; settings: Settings;
+  contentAdditions?: string[];
 }
 export const defaults: Settings = {
   title: '408 简纲', headline: '把 408 学薄一点', tagline: '极简 · 精炼 · 可视化',
@@ -24,7 +25,8 @@ export const defaults: Settings = {
   knowledgeLabel: '浏览知识简纲', examsLabel: '查看历年真题', accent: '#1f49ba', fontSize: 19,
   repository: 'louise-ZQF/408-editable', branch: 'main', contributorsJSON: '', contributorTitle: '一起把 408 学薄一点', contributorSubtitle: '感谢每一位参与共建、纠错与分享的朋友',
 }
-function empty(): WorkspaceData { return { format: '408-editable-v1', updatedAt: 0, books: null, articles: {}, exams: {}, deletedExams: [], trash: [], settings: { ...defaults, lines: [...defaults.lines] } } }
+const protocolSummaryAddition = 'network-protocol-summary-20261027'
+function empty(): WorkspaceData { return { format: '408-editable-v1', updatedAt: 0, books: null, articles: {}, exams: {}, deletedExams: [], trash: [], settings: { ...defaults, lines: [...defaults.lines] }, contentAdditions: [protocolSummaryAddition] } }
 export const workspace = reactive<WorkspaceData>(empty())
 export const revision = ref(0)
 export const editorOpen = ref(false)
@@ -95,6 +97,7 @@ export function validateWorkspace(raw: unknown): WorkspaceData {
     assert(typeof q.chapterName === 'string' && Number.isFinite(q.score) && Number.isFinite(q.difficulty), '题目属性格式错误')
   }
   assert(Array.isArray(data.deletedExams) && data.deletedExams.every(x => typeof x === 'string') && Array.isArray(data.trash), '回收站格式错误')
+  assert(data.contentAdditions === undefined || (Array.isArray(data.contentAdditions) && data.contentAdditions.every(x => typeof x === 'string')), '内容更新记录格式错误')
   assert(data.settings && typeof data.settings === 'object', '网站设置格式错误')
   const settings = { ...defaults, ...data.settings }
   for (const [key, value] of Object.entries(defaults)) assert(typeof (settings as any)[key] === typeof value, `网站设置格式错误：${key}`)
@@ -102,6 +105,17 @@ export function validateWorkspace(raw: unknown): WorkspaceData {
   if (settings.contributorsJSON.trim()) { const people = JSON.parse(settings.contributorsJSON); assert(Array.isArray(people) && people.every((p: any) => typeof p.name === 'string' && ['github','bilibili','douyin','xhs'].includes(p.platform) && /^https?:\/\//.test(p.url)), '共建者列表格式错误') }
   assert(/^#[0-9a-f]{6}$/i.test(settings.accent) && settings.fontSize >= 14 && settings.fontSize <= 28, '主题颜色或字号格式错误')
   return clone({ ...data, settings })
+}
+
+export function addNetworkProtocolSummary(data: WorkspaceData, chapter: Chapter) {
+  if (data.contentAdditions?.includes(protocolSummaryAddition)) return
+  const ids = new Set([chapter.id, ...chapter.sections.flatMap(section => [section.id, ...section.points.map(point => point.id)])])
+  const network = data.books?.find(book => book.id === 'computer-network')
+  const present = data.books?.some(book => book.chapters.some(item => ids.has(item.id) || item.sections.some(section => ids.has(section.id) || section.points.some(point => ids.has(point.id)))))
+  const deleted = data.trash.some(item => ids.has(item.data?.id))
+  // 只给旧个人目录补入这次新增的章节，不覆盖改名、排序、正文或已删除的内容。
+  if (network && !present && !deleted) network.chapters.unshift(clone(chapter))
+  data.contentAdditions = [...(data.contentAdditions || []), protocolSummaryAddition]
 }
 
 function putIDB(data: WorkspaceData): Promise<void> {
@@ -145,7 +159,11 @@ export async function initializeWorkspace() {
   const conflict = !!local && !!published && local.updatedAt > lastPublishedAt && published.updatedAt > lastPublishedAt && local.updatedAt !== published.updatedAt
   const chosen = local && (conflict || !published || local.updatedAt >= published.updatedAt) ? local : published
   if (conflict) errorMessage.value = '本机与 GitHub 都有未合并的修改，已保留本机版本。请先下载备份，再从「备份与发布」载入 GitHub 版本或发布。' 
-  if (chosen) Object.assign(workspace, chosen)
+  if (chosen) {
+    const { computerNetworkBook } = await import('@/content/knowledge-tree')
+    addNetworkProtocolSummary(chosen, computerNetworkBook.chapters.find(chapter => chapter.id === 'chapter-network-protocol-summary')!)
+    Object.assign(workspace, chosen)
+  }
   unpublished.value = !!local && local.updatedAt !== (published?.updatedAt || 0)
   if (published && chosen === published) await markPublished(published.updatedAt)
   saveStatus.value = diskAvailable.value ? '已保存到浏览器和本机文件' : '已保存到此浏览器'

@@ -1,4 +1,5 @@
 import type { KnowledgeArticleData } from "../types";
+import { networkProtocolSummaryArticle } from "../computer-networks/network-architecture/protocol-summary";
 import { tcpIpOsiArticle } from "../computer-networks/network-architecture/tcp-ip-osi";
 import { protocolServiceInterfaceArticle } from "../computer-networks/network-architecture/protocol-service-interface";
 import { rateBandwidthThroughputArticle } from "../computer-networks/network-architecture/rate-bandwidth-throughput";
@@ -59,6 +60,7 @@ export const bookId = "computer-network";
  * 该模块整体作为独立的懒加载 chunk，进入知识页只加载当前教材。
  */
 export const articlesByPoint: Record<string, KnowledgeArticleData> = {
+  [networkProtocolSummaryArticle.pointId]: networkProtocolSummaryArticle,
   [tcpIpOsiArticle.pointId]: tcpIpOsiArticle,
   [protocolServiceInterfaceArticle.pointId]: protocolServiceInterfaceArticle,
   [rateBandwidthThroughputArticle.pointId]: rateBandwidthThroughputArticle,

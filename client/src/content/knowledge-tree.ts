@@ -9,6 +9,25 @@ export const computerNetworkBook: Book = {
   subject: 'NETWORK',
   chapters: [
     {
+      id: 'chapter-network-protocol-summary',
+      title: '常见网络协议汇总',
+      layer: 'TOP',
+      sections: [
+        {
+          id: 'section-network-protocol-summary',
+          title: '计算机网络协议汇总',
+          points: [
+            {
+              id: 'kp-network-protocol-summary',
+              title: '常见网络协议：层级、端口、特点与考点',
+              summary: '汇总应用层、传输层、网络层与数据链路层协议，速查端口号、IP 首部协议字段、主要作用与常考点。',
+              importance: 5,
+            },
+          ],
+        },
+      ],
+    },
+    {
       id: 'chapter-overview',
       title: '计算机网络体系结构',
       layer: 'TOP',
