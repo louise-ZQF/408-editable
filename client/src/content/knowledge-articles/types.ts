@@ -33,6 +33,7 @@ type KnowledgeArticleBlockContent =
       src: string
       alt: string
       caption?: string
+      fullWidth?: boolean
       sourceImport?: KnowledgeSourceImport
     }
   | { type: 'embed'; title: string; html: string }

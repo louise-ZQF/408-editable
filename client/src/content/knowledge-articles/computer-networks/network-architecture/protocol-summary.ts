@@ -1,11 +1,37 @@
 import type { KnowledgeArticleData } from '@/content/knowledge-articles/types'
+import protocolMap from '@/assets/computer-networks/network-architecture/408-protocol-map.svg'
 
 export const networkProtocolSummaryArticle: KnowledgeArticleData = {
   pointId: 'kp-network-protocol-summary',
   subpoints: [
     {
+      id: 'network-protocol-summary-core-map',
+      title: '408 核心协议分层图',
+      blocks: [
+        {
+          id: 'kb-network-protocol-summary-core-map',
+          type: 'image',
+          src: protocolMap,
+          fullWidth: true,
+          alt: '408 计算机网络协议分层图：OSI 七层与五层模型对应；HTTP、FTP、SMTP、POP3、BGP 使用 TCP，DHCP、RIP 使用 UDP，DNS 使用两者；网络层包含 IPv4、IPv6、ICMP、OSPF，ARP 单列于网络层和链路层交界；数据链路层包含停止等待、GBN、SR、ALOHA、CSMA、CSMA/CD、CSMA/CA、令牌传递、PPP、以太网、无线局域网与 VLAN；物理层传输比特流。',
+          caption: '按 408 复习主线重绘。点击可打开高清矢量图，放大后文字仍然清晰。',
+          sourceImport: { path: '@/assets/computer-networks/network-architecture/408-protocol-map.svg', localName: 'protocolMap', kind: 'default' },
+        },
+        {
+          id: 'kb-network-protocol-summary-core-reading',
+          type: 'paragraph',
+          text: '**读图要点：**OSI 的应用层、表示层、会话层合并对应五层模型的应用层。DHCP、RIP、BGP 的复习内容虽然常见于网络层章节，但按承载关系分别运行在 UDP、UDP、TCP 之上；OSPF 直接使用 IP。DNS 既使用 UDP，也使用 TCP。ARP 用于本地链路上的 IP 到 MAC 地址解析；MIME 是邮件格式扩充，不是独立的邮件传输协议。\n\n本图按公开 408 大纲中的协议主线筛选；IP 组播、移动 IP 保留为相关概念。未把 LPR、DECnet、LDAP、NetBIOS、XOT、RUDP 等扩展项目放入核心图。下方保留此前图片提取的扩展速查表，背诵优先看本图。',
+        },
+        {
+          id: 'kb-network-protocol-summary-core-sources',
+          type: 'paragraph',
+          text: '**范围与协议关系核对：**[高校公开的《2025 年计算机学科专业基础考试大纲》（计算机网络部分）](https://www.uwh.edu.cn/uploads/article/20250609/660428d58334252302af691bf99e064e.pdf)；[DNS：RFC 1035 §4.2](https://www.rfc-editor.org/rfc/rfc1035#section-4.2)、[DHCP：RFC 2131 §4.1](https://www.rfc-editor.org/rfc/rfc2131.html#section-4.1)、[RIP：RFC 2453 §3.6](https://www.rfc-editor.org/rfc/rfc2453#section-3.6)、[BGP：RFC 4271 §1](https://www.rfc-editor.org/rfc/rfc4271#section-1)、[OSPF：RFC 2328 §4.3](https://www.rfc-editor.org/rfc/rfc2328.html#section-4.3)。本图是复习主线筛选，并非某一年度大纲的完整替代。',
+        },
+      ],
+    },
+    {
       id: 'network-protocol-summary-layers',
-      title: '常见网络协议在 TCP/IP 体系中的层级',
+      title: '扩展速查：原图协议的层级与端口',
       blocks: [
         {
           id: 'kb-network-protocol-summary-intro',

@@ -164,7 +164,11 @@ function renderInlineMath(text: string): string {
             v-else-if="block.type === 'image'"
             class="m-0 border-y border-[#e1e6ed] bg-[#fafbfd] px-4 py-7"
           >
+            <a v-if="block.fullWidth" :href="block.src" target="_blank" rel="noopener" :aria-label="'打开高清图：' + block.alt">
+              <img :src="block.src" :alt="block.alt" class="mx-auto block h-auto w-full max-w-full" loading="lazy" />
+            </a>
             <img
+              v-else
               :src="block.src"
               :alt="block.alt"
               class="mx-auto block h-auto max-h-[60vh] max-w-full w-auto"
