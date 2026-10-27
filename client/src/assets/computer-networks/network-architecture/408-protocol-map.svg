@@ -86,7 +86,7 @@
 <text x="476" y="871" font-size="28" fill="#176b64" font-weight="700" text-anchor="start">IPv4 / IPv6</text>
 <text x="476" y="903" font-size="19" fill="#426d64" font-weight="400" text-anchor="start">地址长度：32 位 / 128 位</text>
 <text x="931" y="873" font-size="26" fill="#176b64" font-weight="700" text-anchor="middle">ICMP</text>
-<text x="931" y="903" font-size="18" fill="#426d64" font-weight="400" text-anchor="middle">IP 协议号 1</text>
+<text x="931" y="903" font-size="18" fill="#426d64" font-weight="400" text-anchor="middle">IPv4 协议号 1</text>
 <text x="1134" y="873" font-size="26" fill="#176b64" font-weight="700" text-anchor="middle">OSPF</text>
 <text x="1134" y="903" font-size="18" fill="#426d64" font-weight="400" text-anchor="middle">IP 协议号 89</text>
 <text x="456" y="954" font-size="21" fill="#245f54" font-weight="400" text-anchor="start">IP 尽最大努力交付；ICMP、OSPF 直接封装在 IP 中。</text>
