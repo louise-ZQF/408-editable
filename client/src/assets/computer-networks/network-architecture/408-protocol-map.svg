@@ -1,20 +1,25 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="1776" viewBox="0 0 1280 1776" role="img" aria-labelledby="title desc">
-<title id="title">408 核心协议与 OSI 七层逐行对照图</title>
-<desc id="desc">七个独立横行与 OSI 七层严格对齐。应用协议全部位于第七层；第六层为表示功能，第五层为会话功能；第四层 TCP 与 UDP；第三层 IPv4、IPv6、ICMP、OSPF；第二层 ARP、可靠传输、介质访问及链路协议；第一层为比特流与物理传输。</desc>
-<rect width="1280" height="1776" fill="#fff"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="2336" viewBox="0 0 1280 2336" role="img" aria-labelledby="title desc">
+<title id="title">408 OSI 七层功能与核心协议对照图</title>
+<desc id="desc">每一层均列出本层功能，并与典型协议逐行对齐。应用层提供网络服务，表示层转换数据格式，会话层管理会话，传输层提供进程间通信，网络层寻址与转发，数据链路层传帧，物理层传输比特流。</desc>
+<rect width="1280" height="2336" fill="#fff"/>
 <g font-family="PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif">
 <text x="40" y="68" font-size="43" fill="#102847" font-weight="750" text-anchor="start">408 计算机网络</text>
-<text x="40" y="117" font-size="34" fill="#1456a0" font-weight="650" text-anchor="start">协议与 OSI 七层逐行对齐</text>
+<text x="40" y="117" font-size="34" fill="#1456a0" font-weight="650" text-anchor="start">OSI 七层：功能与协议对照</text>
 <text x="1240" y="65" font-size="18" fill="#526680" font-weight="600" text-anchor="end">OSI SEVEN LAYERS</text>
 <text x="1240" y="109" font-size="20" fill="#526680" font-weight="400" text-anchor="end">每一层独立成行 · 不跨层合并</text>
 <line x1="40" y1="137" x2="1240" y2="137" stroke="#d9e3ef" stroke-width="2"/>
 <text x="48" y="166" font-size="19" fill="#526680" font-weight="600" text-anchor="start">OSI 层号与层名</text>
-<text x="320" y="166" font-size="19" fill="#526680" font-weight="600" text-anchor="start">本层协议、机制与功能</text>
-<rect x="32" y="184" width="252" height="310" rx="14" fill="#eaf3ff" stroke="none" stroke-width="1.5"/>
-<text x="70" y="359.0" font-size="58" fill="#1456a0" font-weight="700" text-anchor="middle">7</text>
-<text x="120" y="334.0" font-size="27" fill="#1456a0" font-weight="700" text-anchor="start">应用层</text>
-<text x="120" y="367.0" font-size="17" fill="#526680" font-weight="400" text-anchor="start">网络应用服务</text>
-<rect x="300" y="184" width="948" height="310" rx="14" fill="#f6f9ff" stroke="#d9e5f3" stroke-width="1.5"/>
+<text x="320" y="166" font-size="19" fill="#526680" font-weight="600" text-anchor="start">本层功能 + 典型协议 / 机制</text>
+<rect x="32" y="184" width="252" height="390" rx="14" fill="#eaf3ff" stroke="none" stroke-width="1.5"/>
+<text x="70" y="399.0" font-size="58" fill="#1456a0" font-weight="700" text-anchor="middle">7</text>
+<text x="120" y="374.0" font-size="27" fill="#1456a0" font-weight="700" text-anchor="start">应用层</text>
+<text x="120" y="407.0" font-size="17" fill="#526680" font-weight="400" text-anchor="start">网络应用服务</text>
+<rect x="300" y="184" width="948" height="390" rx="14" fill="#f6f9ff" stroke="#d9e5f3" stroke-width="1.5"/>
+<rect x="320" y="200" width="908" height="64" rx="10" fill="#fff" stroke="#d9e5f3" stroke-width="1.5"/>
+<text x="338" y="236" font-size="20" fill="#1456a0" font-weight="700" text-anchor="start">本层功能</text>
+<text x="456" y="224" font-size="20" fill="#334e6a" font-weight="400" text-anchor="start">向应用进程提供网络服务，支持网络应用间的信息交换。</text>
+<text x="456" y="250" font-size="20" fill="#334e6a" font-weight="400" text-anchor="start">例如网页访问、文件传输、邮件收发、域名解析。</text>
+<g transform="translate(0,80)">
 <rect x="320" y="204" width="536" height="144" rx="14" fill="#fff" stroke="#d5e4f5" stroke-width="1.5"/>
 <rect x="872" y="204" width="356" height="144" rx="14" fill="#fff" stroke="#e0d8f1" stroke-width="1.5"/>
 <text x="338" y="235" font-size="20" fill="#1456a0" font-weight="700" text-anchor="start">使用 TCP</text>
@@ -38,11 +43,17 @@
 <text x="530" y="399" font-size="22" fill="#384e94" font-weight="400" text-anchor="start">查询常用 UDP；区域传送使用 TCP</text>
 <text x="320" y="451" font-size="21" fill="#324d70" font-weight="400" text-anchor="start">MIME：邮件格式扩充，配合电子邮件系统使用。</text>
 <text x="320" y="480" font-size="18" fill="#526680" font-weight="400" text-anchor="start">* FTP：21 为控制端口；20 为主动方式数据连接的服务器端口。</text>
-<rect x="32" y="510" width="252" height="116" rx="14" fill="#eef5fd" stroke="none" stroke-width="1.5"/>
-<text x="70" y="588.0" font-size="58" fill="#356a98" font-weight="700" text-anchor="middle">6</text>
-<text x="120" y="563.0" font-size="27" fill="#356a98" font-weight="700" text-anchor="start">表示层</text>
-<text x="120" y="596.0" font-size="17" fill="#526680" font-weight="400" text-anchor="start">处理数据的表示</text>
-<rect x="300" y="510" width="948" height="116" rx="14" fill="#f7faff" stroke="#dce7f3" stroke-width="1.5"/>
+</g>
+<rect x="32" y="590" width="252" height="196" rx="14" fill="#eef5fd" stroke="none" stroke-width="1.5"/>
+<text x="70" y="708.0" font-size="58" fill="#356a98" font-weight="700" text-anchor="middle">6</text>
+<text x="120" y="683.0" font-size="27" fill="#356a98" font-weight="700" text-anchor="start">表示层</text>
+<text x="120" y="716.0" font-size="17" fill="#526680" font-weight="400" text-anchor="start">处理数据的表示</text>
+<rect x="300" y="590" width="948" height="196" rx="14" fill="#f7faff" stroke="#dce7f3" stroke-width="1.5"/>
+<rect x="320" y="606" width="908" height="64" rx="10" fill="#fff" stroke="#dce7f3" stroke-width="1.5"/>
+<text x="338" y="642" font-size="20" fill="#356a98" font-weight="700" text-anchor="start">本层功能</text>
+<text x="456" y="630" font-size="20" fill="#334e6a" font-weight="400" text-anchor="start">统一数据表示与编码，处理不同系统间的数据格式转换。</text>
+<text x="456" y="656" font-size="20" fill="#334e6a" font-weight="400" text-anchor="start">压缩与解压、加密与解密。</text>
+<g transform="translate(0,160)">
 <rect x="320" y="529" width="228" height="36" rx="8" fill="#e8f1fc" stroke="none" stroke-width="1.5"/>
 <text x="434.0" y="554" font-size="22" fill="#356a98" font-weight="600" text-anchor="middle">格式 / 编码转换</text>
 <rect x="564" y="529" width="220" height="36" rx="8" fill="#e8f1fc" stroke="none" stroke-width="1.5"/>
@@ -50,11 +61,17 @@
 <rect x="800" y="529" width="244" height="36" rx="8" fill="#e8f1fc" stroke="none" stroke-width="1.5"/>
 <text x="922.0" y="554" font-size="22" fill="#356a98" font-weight="600" text-anchor="middle">加密 / 解密</text>
 <text x="320" y="602" font-size="21" fill="#526680" font-weight="400" text-anchor="start">408 侧重理解本层的数据表示与语法转换功能。</text>
-<rect x="32" y="642" width="252" height="116" rx="14" fill="#efedf9" stroke="none" stroke-width="1.5"/>
-<text x="70" y="720.0" font-size="58" fill="#5c589b" font-weight="700" text-anchor="middle">5</text>
-<text x="120" y="695.0" font-size="27" fill="#5c589b" font-weight="700" text-anchor="start">会话层</text>
-<text x="120" y="728.0" font-size="17" fill="#526680" font-weight="400" text-anchor="start">建立与管理会话</text>
-<rect x="300" y="642" width="948" height="116" rx="14" fill="#faf9fe" stroke="#e0dcef" stroke-width="1.5"/>
+</g>
+<rect x="32" y="802" width="252" height="196" rx="14" fill="#efedf9" stroke="none" stroke-width="1.5"/>
+<text x="70" y="920.0" font-size="58" fill="#5c589b" font-weight="700" text-anchor="middle">5</text>
+<text x="120" y="895.0" font-size="27" fill="#5c589b" font-weight="700" text-anchor="start">会话层</text>
+<text x="120" y="928.0" font-size="17" fill="#526680" font-weight="400" text-anchor="start">建立与管理会话</text>
+<rect x="300" y="802" width="948" height="196" rx="14" fill="#faf9fe" stroke="#e0dcef" stroke-width="1.5"/>
+<rect x="320" y="818" width="908" height="64" rx="10" fill="#fff" stroke="#e0dcef" stroke-width="1.5"/>
+<text x="338" y="854" font-size="20" fill="#5c589b" font-weight="700" text-anchor="start">本层功能</text>
+<text x="456" y="842" font-size="20" fill="#334e6a" font-weight="400" text-anchor="start">建立、管理和终止应用进程之间的会话。</text>
+<text x="456" y="868" font-size="20" fill="#334e6a" font-weight="400" text-anchor="start">进行对话控制与同步，设置会话检查点。</text>
+<g transform="translate(0,240)">
 <rect x="320" y="661" width="228" height="36" rx="8" fill="#eeebfa" stroke="none" stroke-width="1.5"/>
 <text x="434.0" y="686" font-size="22" fill="#5c589b" font-weight="600" text-anchor="middle">建立会话</text>
 <rect x="564" y="661" width="220" height="36" rx="8" fill="#eeebfa" stroke="none" stroke-width="1.5"/>
@@ -62,11 +79,17 @@
 <rect x="800" y="661" width="244" height="36" rx="8" fill="#eeebfa" stroke="none" stroke-width="1.5"/>
 <text x="922.0" y="686" font-size="22" fill="#5c589b" font-weight="600" text-anchor="middle">释放会话</text>
 <text x="320" y="734" font-size="21" fill="#526680" font-weight="400" text-anchor="start">408 侧重理解本层的会话控制与同步功能。</text>
-<rect x="32" y="774" width="252" height="162" rx="14" fill="#f3ecfa" stroke="none" stroke-width="1.5"/>
-<text x="70" y="875.0" font-size="58" fill="#734199" font-weight="700" text-anchor="middle">4</text>
-<text x="120" y="850.0" font-size="27" fill="#734199" font-weight="700" text-anchor="start">传输层</text>
-<text x="120" y="883.0" font-size="17" fill="#526680" font-weight="400" text-anchor="start">端到端传输</text>
-<rect x="300" y="774" width="948" height="162" rx="14" fill="#fcfaff" stroke="#e4d9ef" stroke-width="1.5"/>
+</g>
+<rect x="32" y="1014" width="252" height="242" rx="14" fill="#f3ecfa" stroke="none" stroke-width="1.5"/>
+<text x="70" y="1155.0" font-size="58" fill="#734199" font-weight="700" text-anchor="middle">4</text>
+<text x="120" y="1130.0" font-size="27" fill="#734199" font-weight="700" text-anchor="start">传输层</text>
+<text x="120" y="1163.0" font-size="17" fill="#526680" font-weight="400" text-anchor="start">端到端传输</text>
+<rect x="300" y="1014" width="948" height="242" rx="14" fill="#fcfaff" stroke="#e4d9ef" stroke-width="1.5"/>
+<rect x="320" y="1030" width="908" height="64" rx="10" fill="#fff" stroke="#e4d9ef" stroke-width="1.5"/>
+<text x="338" y="1066" font-size="20" fill="#734199" font-weight="700" text-anchor="start">本层功能</text>
+<text x="456" y="1054" font-size="20" fill="#334e6a" font-weight="400" text-anchor="start">为不同主机上的应用进程提供端到端通信。</text>
+<text x="456" y="1080" font-size="20" fill="#334e6a" font-weight="400" text-anchor="start">端口寻址、复用/分用；TCP 提供可靠传输与流量、拥塞控制。</text>
+<g transform="translate(0,320)">
 <rect x="320" y="794" width="446" height="122" rx="14" fill="#eef5ff" stroke="none" stroke-width="1.5"/>
 <rect x="782" y="794" width="446" height="122" rx="14" fill="#f4edfc" stroke="none" stroke-width="1.5"/>
 <text x="340" y="832" font-size="31" fill="#1456a0" font-weight="750" text-anchor="start">TCP</text>
@@ -77,11 +100,17 @@
 <text x="1208" y="830" font-size="18" fill="#805b9e" font-weight="500" text-anchor="end">IPv4 协议号 17</text>
 <text x="802" y="868" font-size="22" fill="#614078" font-weight="400" text-anchor="start">无连接 · 不保证可靠 · 报文</text>
 <text x="802" y="899" font-size="20" fill="#526680" font-weight="400" text-anchor="start">首部 8 字节</text>
-<rect x="32" y="952" width="252" height="182" rx="14" fill="#e9f7f3" stroke="none" stroke-width="1.5"/>
-<text x="70" y="1063.0" font-size="58" fill="#176b64" font-weight="700" text-anchor="middle">3</text>
-<text x="120" y="1038.0" font-size="27" fill="#176b64" font-weight="700" text-anchor="start">网络层</text>
-<text x="120" y="1071.0" font-size="17" fill="#526680" font-weight="400" text-anchor="start">寻址与分组转发</text>
-<rect x="300" y="952" width="948" height="182" rx="14" fill="#f2fbf8" stroke="#d6ece5" stroke-width="1.5"/>
+</g>
+<rect x="32" y="1272" width="252" height="262" rx="14" fill="#e9f7f3" stroke="none" stroke-width="1.5"/>
+<text x="70" y="1423.0" font-size="58" fill="#176b64" font-weight="700" text-anchor="middle">3</text>
+<text x="120" y="1398.0" font-size="27" fill="#176b64" font-weight="700" text-anchor="start">网络层</text>
+<text x="120" y="1431.0" font-size="17" fill="#526680" font-weight="400" text-anchor="start">寻址与分组转发</text>
+<rect x="300" y="1272" width="948" height="262" rx="14" fill="#f2fbf8" stroke="#d6ece5" stroke-width="1.5"/>
+<rect x="320" y="1288" width="908" height="64" rx="10" fill="#fff" stroke="#d6ece5" stroke-width="1.5"/>
+<text x="338" y="1324" font-size="20" fill="#176b64" font-weight="700" text-anchor="start">本层功能</text>
+<text x="456" y="1312" font-size="20" fill="#334e6a" font-weight="400" text-anchor="start">逻辑寻址、路由选择与分组转发。</text>
+<text x="456" y="1338" font-size="20" fill="#334e6a" font-weight="400" text-anchor="start">连接不同网络，使分组能够跨网络传递。</text>
+<g transform="translate(0,400)">
 <rect x="320" y="972" width="410" height="78" rx="14" fill="#fff" stroke="#cfe3dc" stroke-width="1.5"/>
 <rect x="746" y="972" width="224" height="78" rx="14" fill="#fff" stroke="#cfe3dc" stroke-width="1.5"/>
 <rect x="986" y="972" width="242" height="78" rx="14" fill="#fff" stroke="#cfe3dc" stroke-width="1.5"/>
@@ -93,11 +122,17 @@
 <text x="1107" y="1036" font-size="18" fill="#426d64" font-weight="400" text-anchor="middle">IPv4 协议号 89</text>
 <text x="320" y="1084" font-size="22" fill="#245f54" font-weight="400" text-anchor="start">IPv4 / IPv6：寻址与转发；ICMP、OSPF 直接使用 IP。</text>
 <text x="320" y="1116" font-size="21" fill="#426d64" font-weight="400" text-anchor="start">相关概念：IP 组播、移动 IP。</text>
-<rect x="32" y="1150" width="252" height="326" rx="14" fill="#fff5e3" stroke="none" stroke-width="1.5"/>
-<text x="70" y="1333.0" font-size="58" fill="#93631e" font-weight="700" text-anchor="middle">2</text>
-<text x="120" y="1308.0" font-size="27" fill="#93631e" font-weight="700" text-anchor="start">数据链路层</text>
-<text x="120" y="1341.0" font-size="17" fill="#526680" font-weight="400" text-anchor="start">相邻结点传帧</text>
-<rect x="300" y="1150" width="948" height="326" rx="14" fill="#fffbf3" stroke="#eadfc9" stroke-width="1.5"/>
+</g>
+<rect x="32" y="1550" width="252" height="406" rx="14" fill="#fff5e3" stroke="none" stroke-width="1.5"/>
+<text x="70" y="1773.0" font-size="58" fill="#93631e" font-weight="700" text-anchor="middle">2</text>
+<text x="120" y="1748.0" font-size="27" fill="#93631e" font-weight="700" text-anchor="start">数据链路层</text>
+<text x="120" y="1781.0" font-size="17" fill="#526680" font-weight="400" text-anchor="start">相邻结点传帧</text>
+<rect x="300" y="1550" width="948" height="406" rx="14" fill="#fffbf3" stroke="#eadfc9" stroke-width="1.5"/>
+<rect x="320" y="1566" width="908" height="64" rx="10" fill="#fff" stroke="#eadfc9" stroke-width="1.5"/>
+<text x="338" y="1602" font-size="20" fill="#93631e" font-weight="700" text-anchor="start">本层功能</text>
+<text x="456" y="1590" font-size="20" fill="#334e6a" font-weight="400" text-anchor="start">组帧、MAC 寻址、差错检测和介质访问控制。</text>
+<text x="456" y="1616" font-size="20" fill="#334e6a" font-weight="400" text-anchor="start">在相邻结点间传送帧；按具体协议提供流量控制与可靠传输。</text>
+<g transform="translate(0,480)">
 <rect x="320" y="1170" width="908" height="57" rx="14" fill="#fff3d7" stroke="#ead7aa" stroke-width="1.5"/>
 <text x="338" y="1207" font-size="24" fill="#88621e" font-weight="700" text-anchor="start">ARP · IP → MAC</text>
 <text x="620" y="1206" font-size="21" fill="#88621e" font-weight="400" text-anchor="start">本地地址解析，直接封装在链路层帧中</text>
@@ -116,15 +151,22 @@
 <text x="338" y="1434" font-size="19" fill="#93631e" font-weight="650" text-anchor="start">链路 / 标准</text>
 <text x="486" y="1421" font-size="21" fill="#604d32" font-weight="400" text-anchor="start">PPP · 802.3 以太网 · 802.11 无线局域网</text>
 <text x="486" y="1449" font-size="20" fill="#604d32" font-weight="400" text-anchor="start">VLAN（802.1Q）</text>
-<rect x="32" y="1492" width="252" height="132" rx="14" fill="#edf2f7" stroke="none" stroke-width="1.5"/>
-<text x="70" y="1578.0" font-size="58" fill="#52667e" font-weight="700" text-anchor="middle">1</text>
-<text x="120" y="1553.0" font-size="27" fill="#52667e" font-weight="700" text-anchor="start">物理层</text>
-<text x="120" y="1586.0" font-size="17" fill="#526680" font-weight="400" text-anchor="start">透明传输比特流</text>
-<rect x="300" y="1492" width="948" height="132" rx="14" fill="#f5f7fa" stroke="#dce4ee" stroke-width="1.5"/>
+</g>
+<rect x="32" y="1972" width="252" height="212" rx="14" fill="#edf2f7" stroke="none" stroke-width="1.5"/>
+<text x="70" y="2098.0" font-size="58" fill="#52667e" font-weight="700" text-anchor="middle">1</text>
+<text x="120" y="2073.0" font-size="27" fill="#52667e" font-weight="700" text-anchor="start">物理层</text>
+<text x="120" y="2106.0" font-size="17" fill="#526680" font-weight="400" text-anchor="start">透明传输比特流</text>
+<rect x="300" y="1972" width="948" height="212" rx="14" fill="#f5f7fa" stroke="#dce4ee" stroke-width="1.5"/>
+<rect x="320" y="1988" width="908" height="64" rx="10" fill="#fff" stroke="#dce4ee" stroke-width="1.5"/>
+<text x="338" y="2024" font-size="20" fill="#52667e" font-weight="700" text-anchor="start">本层功能</text>
+<text x="456" y="2012" font-size="20" fill="#334e6a" font-weight="400" text-anchor="start">在物理介质上传送原始比特流。</text>
+<text x="456" y="2038" font-size="20" fill="#334e6a" font-weight="400" text-anchor="start">规定接口的机械、电气、功能和过程特性。</text>
+<g transform="translate(0,560)">
 <text x="320" y="1540" font-size="29" fill="#445a73" font-weight="700" text-anchor="start">比特流</text>
 <text x="486" y="1540" font-size="23" fill="#445a73" font-weight="400" text-anchor="start">编码 · 调制 · 传输介质 · 物理接口</text>
 <text x="320" y="1590" font-size="22" fill="#526680" font-weight="400" text-anchor="start">典型设备：中继器、集线器</text>
+</g><g transform="translate(0,560)">
 <text x="40" y="1667" font-size="20" fill="#526680" font-weight="400" text-anchor="start">按 OSI 七层作层级对照；五层模型的应用层覆盖 OSI 的第 7、6、5 层功能。</text>
 <text x="40" y="1706" font-size="20" fill="#526680" font-weight="400" text-anchor="start">按实际封装关系归属：DHCP、RIP、BGP 位于第 7 层；ARP 在本图归入第 2 层。</text>
 <text x="40" y="1745" font-size="19" fill="#526680" font-weight="400" text-anchor="start">端口号标在应用协议旁；TCP / UDP / ICMP / OSPF 旁标注 IPv4 首部的协议字段值。</text>
-</g></svg>
+</g></g></svg>

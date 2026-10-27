@@ -7,7 +7,7 @@ export const networkProtocolSummaryArticle: KnowledgeArticleData = {
   subpoints: [
     {
       id: 'network-protocol-summary-core-map',
-      title: '408 核心协议分层图：OSI 七层逐行对齐',
+      title: '408 OSI 七层：各层功能与核心协议对照图',
       blocks: [
         {
           id: 'kb-network-protocol-summary-core-map',
@@ -15,8 +15,23 @@ export const networkProtocolSummaryArticle: KnowledgeArticleData = {
           src: protocolMap,
           fullWidth: true,
           alt: '408 核心协议与 OSI 七层逐行对齐：第 7 层应用层为 HTTP、FTP、SMTP、POP3、DNS、DHCP、RIP、BGP 及邮件格式扩充 MIME；第 6 层表示层为格式转换、压缩、加密功能；第 5 层会话层为会话建立、管理、同步及释放；第 4 层传输层为 TCP、UDP；第 3 层网络层为 IPv4、IPv6、ICMP、OSPF；第 2 层数据链路层为 ARP、停止等待、GBN、SR、ALOHA、CSMA、CSMA/CD、CSMA/CA、令牌传递、PPP、以太网、无线局域网、VLAN；第 1 层物理层传输比特流。',
-          caption: '七层各自成行，协议与对应的 OSI 层名在同一行内。点击可打开高清矢量图。',
+          caption: '七层各自成行，每层均列出本层功能及典型协议、机制。点击可打开高清矢量图。',
           sourceImport: { path: '@/assets/computer-networks/network-architecture/408-protocol-map.svg', localName: 'protocolMap', kind: 'default' },
+        },
+        {
+          id: 'kb-network-protocol-summary-layer-functions',
+          type: 'paragraph',
+          text: `**OSI 每一层的功能**
+
+| 层级 | 主要功能 |
+| --- | --- |
+| 7 应用层 | 向应用进程提供网络服务，支持网络应用间的信息交换，例如网页访问、文件传输、邮件收发、域名解析。 |
+| 6 表示层 | 统一数据表示与编码，完成格式、语法转换，以及压缩/解压、加密/解密。 |
+| 5 会话层 | 建立、管理、终止应用进程间的会话；进行对话控制与同步，设置检查点。 |
+| 4 传输层 | 提供应用进程间的端到端通信；端口寻址、复用/分用；TCP 还提供可靠传输、流量控制和拥塞控制。 |
+| 3 网络层 | 逻辑寻址、路由选择、分组转发，连接不同网络，实现跨网络的分组传递。 |
+| 2 数据链路层 | 组帧、MAC 寻址、差错检测、介质访问控制，在相邻结点间传送帧；流量控制与可靠传输取决于具体链路协议。 |
+| 1 物理层 | 在物理介质上传送原始比特流；规定接口的机械、电气、功能和过程特性。 |`,
         },
         {
           id: 'kb-network-protocol-summary-core-reading',
@@ -40,8 +55,20 @@ export const networkProtocolSummaryArticle: KnowledgeArticleData = {
           src: encapsulationMap,
           fullWidth: true,
           alt: '408 TCP/IP 协议封装关系图：DNS 53、DHCP 67/68、RIP 520 使用 UDP；DNS 53、FTP 21/20、SMTP 25、POP3 110、HTTP 80、BGP 179 使用 TCP。ICMP、UDP、TCP、OSPF 连接 IPv4 首部协议字段 1、17、6、89，再由 IP 数据报连接局域网、广域网链路。ARP 在网络接口层进行本地地址解析，不是 IP 载荷。',
-          caption: '沿箭头查看应用协议、端口、传输层、IP 与底层链路的封装关系。点击可打开高清矢量图。',
+          caption: '沿箭头查看封装关系，图下部列出 TCP/IP 四层的功能。点击可打开高清矢量图。',
           sourceImport: { path: '@/assets/computer-networks/network-architecture/408-protocol-encapsulation.svg', localName: 'encapsulationMap', kind: 'default' },
+        },
+        {
+          id: 'kb-network-protocol-summary-tcpip-functions',
+          type: 'paragraph',
+          text: `**TCP/IP 每一层的功能**
+
+| 层级 | 主要功能及与 OSI 的对应 |
+| --- | --- |
+| 应用层 | 为应用进程提供网络服务；覆盖 OSI 应用层、表示层、会话层的功能。 |
+| 传输层 | 提供进程间端到端通信，完成端口寻址、复用/分用；TCP 另提供可靠传输、流量控制、拥塞控制。 |
+| 网络层（网际层） | 完成逻辑寻址、路由选择、分组转发，传递跨网络的 IP 数据报；对应 OSI 网络层。 |
+| 网络接口层 | 将 IP 数据报封装为帧，经本地链路和物理介质发送；涵盖 OSI 数据链路层和物理层的功能。 |`,
         },
         {
           id: 'kb-network-protocol-summary-encapsulation-reading',
