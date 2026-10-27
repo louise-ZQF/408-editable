@@ -6,26 +6,26 @@ export const networkProtocolSummaryArticle: KnowledgeArticleData = {
   subpoints: [
     {
       id: 'network-protocol-summary-core-map',
-      title: '408 核心协议分层图',
+      title: '408 核心协议分层图：OSI 七层逐行对齐',
       blocks: [
         {
           id: 'kb-network-protocol-summary-core-map',
           type: 'image',
           src: protocolMap,
           fullWidth: true,
-          alt: '408 计算机网络协议分层图：OSI 七层与五层模型对应；HTTP、FTP、SMTP、POP3、BGP 使用 TCP，DHCP、RIP 使用 UDP，DNS 使用两者；网络层包含 IPv4、IPv6、ICMP、OSPF，ARP 单列于网络层和链路层交界；数据链路层包含停止等待、GBN、SR、ALOHA、CSMA、CSMA/CD、CSMA/CA、令牌传递、PPP、以太网、无线局域网与 VLAN；物理层传输比特流。',
-          caption: '按 408 复习主线重绘。点击可打开高清矢量图，放大后文字仍然清晰。',
+          alt: '408 核心协议与 OSI 七层逐行对齐：第 7 层应用层为 HTTP、FTP、SMTP、POP3、DNS、DHCP、RIP、BGP 及邮件格式扩充 MIME；第 6 层表示层为格式转换、压缩、加密功能；第 5 层会话层为会话建立、管理、同步及释放；第 4 层传输层为 TCP、UDP；第 3 层网络层为 IPv4、IPv6、ICMP、OSPF；第 2 层数据链路层为 ARP、停止等待、GBN、SR、ALOHA、CSMA、CSMA/CD、CSMA/CA、令牌传递、PPP、以太网、无线局域网、VLAN；第 1 层物理层传输比特流。',
+          caption: '七层各自成行，协议与对应的 OSI 层名在同一行内。点击可打开高清矢量图。',
           sourceImport: { path: '@/assets/computer-networks/network-architecture/408-protocol-map.svg', localName: 'protocolMap', kind: 'default' },
         },
         {
           id: 'kb-network-protocol-summary-core-reading',
           type: 'paragraph',
-          text: '**读图要点：**OSI 的应用层、表示层、会话层合并对应五层模型的应用层。DHCP、RIP、BGP 的复习内容虽然常见于网络层章节，但按承载关系分别运行在 UDP、UDP、TCP 之上；OSPF 直接使用 IP。DNS 既使用 UDP，也使用 TCP。ARP 用于本地链路上的 IP 到 MAC 地址解析；MIME 是邮件格式扩充，不是独立的邮件传输协议。\n\n本图按公开 408 大纲中的协议主线筛选；IP 组播、移动 IP 保留为相关概念。未把 LPR、DECnet、LDAP、NetBIOS、XOT、RUDP 等扩展项目放入核心图。下方保留此前图片提取的扩展速查表，背诵优先看本图。',
+          text: '**读图要点：**本图把 TCP/IP 协议按 OSI 七层作对应展示，七层各自占一行。HTTP、FTP、SMTP、POP3、DNS、DHCP、RIP、BGP 全部放在第 7 层；第 6 层表示层、第 5 层会话层分别展示其功能，不用扩展协议凑数。MIME 是邮件格式扩充，随电子邮件应用列在第 7 层。\n\nDHCP、RIP、BGP 虽常见于网络层章节，但实际分别使用 UDP、UDP、TCP；OSPF 直接使用 IP，放在第 3 层。DNS 既使用 UDP，也使用 TCP。ARP 由本地链路直接承载，本图按实际封装关系放在第 2 层；教材常在网络层章节讲解 ARP，章节安排与协议层级需分开记。五层模型的应用层覆盖 OSI 第 7、6、5 层的功能，但本图不跨行合并。\n\n本图按公开 408 大纲中的协议主线筛选；IP 组播、移动 IP 保留为相关概念。下方保留此前图片提取的扩展速查表，背诵优先看本图。',
         },
         {
           id: 'kb-network-protocol-summary-core-sources',
           type: 'paragraph',
-          text: '**范围与协议关系核对：**[高校公开的《2025 年计算机学科专业基础考试大纲》（计算机网络部分）](https://www.uwh.edu.cn/uploads/article/20250609/660428d58334252302af691bf99e064e.pdf)；[DNS：RFC 1035 §4.2](https://www.rfc-editor.org/rfc/rfc1035#section-4.2)、[DHCP：RFC 2131 §4.1](https://www.rfc-editor.org/rfc/rfc2131.html#section-4.1)、[RIP：RFC 2453 §3.6](https://www.rfc-editor.org/rfc/rfc2453#section-3.6)、[BGP：RFC 4271 §1](https://www.rfc-editor.org/rfc/rfc4271#section-1)、[OSPF：RFC 2328 §4.3](https://www.rfc-editor.org/rfc/rfc2328.html#section-4.3)。本图是复习主线筛选，并非某一年度大纲的完整替代。',
+          text: '**范围与协议关系核对：**[高校公开的《2025 年计算机学科专业基础考试大纲》（计算机网络部分）](https://www.uwh.edu.cn/uploads/article/20250609/660428d58334252302af691bf99e064e.pdf)；[DNS：RFC 1035 §4.2](https://www.rfc-editor.org/rfc/rfc1035#section-4.2)、[DHCP：RFC 2131 §4.1](https://www.rfc-editor.org/rfc/rfc2131.html#section-4.1)、[RIP：RFC 2453 §3.6](https://www.rfc-editor.org/rfc/rfc2453#section-3.6)、[BGP：RFC 4271 §1](https://www.rfc-editor.org/rfc/rfc4271#section-1)、[OSPF：RFC 2328 §4.3](https://www.rfc-editor.org/rfc/rfc2328.html#section-4.3)、[ARP：RFC 1122 §2.3.2（链路层章节）](https://www.rfc-editor.org/rfc/rfc1122.html#section-2.3.2)。本图是复习主线筛选，并非某一年度大纲的完整替代。',
         },
       ],
     },
