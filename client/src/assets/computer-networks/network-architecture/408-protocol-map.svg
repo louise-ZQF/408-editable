@@ -87,8 +87,8 @@
 <rect x="300" y="1014" width="948" height="242" rx="14" fill="#fcfaff" stroke="#e4d9ef" stroke-width="1.5"/>
 <rect x="320" y="1030" width="908" height="64" rx="10" fill="#fff" stroke="#e4d9ef" stroke-width="1.5"/>
 <text x="338" y="1066" font-size="20" fill="#734199" font-weight="700" text-anchor="start">本层功能</text>
-<text x="456" y="1054" font-size="20" fill="#334e6a" font-weight="400" text-anchor="start">为不同主机上的应用进程提供端到端通信。</text>
-<text x="456" y="1080" font-size="20" fill="#334e6a" font-weight="400" text-anchor="start">端口寻址、复用/分用；TCP 提供可靠传输与流量、拥塞控制。</text>
+<text x="456" y="1054" font-size="20" fill="#334e6a" font-weight="400" text-anchor="start">通过端口寻址、复用/分用，提供应用进程间端到端通信。</text>
+<text x="456" y="1080" font-size="20" fill="#334e6a" font-weight="400" text-anchor="start">TCP：分段重组、连接管理、可靠传输、流量与拥塞控制。</text>
 <g transform="translate(0,320)">
 <rect x="320" y="794" width="446" height="122" rx="14" fill="#eef5ff" stroke="none" stroke-width="1.5"/>
 <rect x="782" y="794" width="446" height="122" rx="14" fill="#f4edfc" stroke="none" stroke-width="1.5"/>
@@ -108,8 +108,8 @@
 <rect x="300" y="1272" width="948" height="262" rx="14" fill="#f2fbf8" stroke="#d6ece5" stroke-width="1.5"/>
 <rect x="320" y="1288" width="908" height="64" rx="10" fill="#fff" stroke="#d6ece5" stroke-width="1.5"/>
 <text x="338" y="1324" font-size="20" fill="#176b64" font-weight="700" text-anchor="start">本层功能</text>
-<text x="456" y="1312" font-size="20" fill="#334e6a" font-weight="400" text-anchor="start">逻辑寻址、路由选择与分组转发。</text>
-<text x="456" y="1338" font-size="20" fill="#334e6a" font-weight="400" text-anchor="start">连接不同网络，使分组能够跨网络传递。</text>
+<text x="456" y="1312" font-size="20" fill="#334e6a" font-weight="400" text-anchor="start">逻辑寻址、路由选择、分组转发与网络拥塞控制。</text>
+<text x="456" y="1338" font-size="20" fill="#334e6a" font-weight="400" text-anchor="start">实现异构网络互联，将分组逐跳送向目的主机。</text>
 <g transform="translate(0,400)">
 <rect x="320" y="972" width="410" height="78" rx="14" fill="#fff" stroke="#cfe3dc" stroke-width="1.5"/>
 <rect x="746" y="972" width="224" height="78" rx="14" fill="#fff" stroke="#cfe3dc" stroke-width="1.5"/>
@@ -130,7 +130,7 @@
 <rect x="300" y="1550" width="948" height="406" rx="14" fill="#fffbf3" stroke="#eadfc9" stroke-width="1.5"/>
 <rect x="320" y="1566" width="908" height="64" rx="10" fill="#fff" stroke="#eadfc9" stroke-width="1.5"/>
 <text x="338" y="1602" font-size="20" fill="#93631e" font-weight="700" text-anchor="start">本层功能</text>
-<text x="456" y="1590" font-size="20" fill="#334e6a" font-weight="400" text-anchor="start">组帧、MAC 寻址、差错检测和介质访问控制。</text>
+<text x="456" y="1590" font-size="20" fill="#334e6a" font-weight="400" text-anchor="start">组帧、MAC 寻址、差错控制和介质访问控制。</text>
 <text x="456" y="1616" font-size="20" fill="#334e6a" font-weight="400" text-anchor="start">在相邻结点间传送帧；按具体协议提供流量控制与可靠传输。</text>
 <g transform="translate(0,480)">
 <rect x="320" y="1170" width="908" height="57" rx="14" fill="#fff3d7" stroke="#ead7aa" stroke-width="1.5"/>

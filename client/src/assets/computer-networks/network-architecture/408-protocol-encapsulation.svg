@@ -134,10 +134,10 @@
 <text x="240" y="1205" font-size="21" fill="#334e6a" font-weight="400" text-anchor="start">提供网络应用服务，覆盖 OSI 应用层、表示层、会话层的功能。</text>
 <rect x="32" y="1229" width="1360" height="55" rx="10" fill="#f1edfa" stroke="none" stroke-width="1.6"/>
 <text x="52" y="1265" font-size="23" fill="#734199" font-weight="700" text-anchor="start">传输层</text>
-<text x="240" y="1264" font-size="21" fill="#334e6a" font-weight="400" text-anchor="start">进程间端到端通信；端口寻址、复用/分用；TCP 提供可靠性及流量、拥塞控制。</text>
+<text x="240" y="1264" font-size="21" fill="#334e6a" font-weight="400" text-anchor="start">进程间端到端通信、端口复用/分用；TCP 提供分段重组、连接管理及可靠性等机制。</text>
 <rect x="32" y="1288" width="1360" height="55" rx="10" fill="#e9f7f3" stroke="none" stroke-width="1.6"/>
 <text x="52" y="1324" font-size="23" fill="#176b64" font-weight="700" text-anchor="start">网络层</text>
-<text x="240" y="1323" font-size="21" fill="#334e6a" font-weight="400" text-anchor="start">逻辑寻址、路由选择与分组转发，实现跨网络的数据报传递。</text>
+<text x="240" y="1323" font-size="21" fill="#334e6a" font-weight="400" text-anchor="start">逻辑寻址、路由选择、分组转发与网络拥塞控制，实现异构网络互联。</text>
 <rect x="32" y="1347" width="1360" height="55" rx="10" fill="#fff3de" stroke="none" stroke-width="1.6"/>
 <text x="52" y="1383" font-size="23" fill="#93631e" font-weight="700" text-anchor="start">网络接口层</text>
 <text x="240" y="1382" font-size="21" fill="#334e6a" font-weight="400" text-anchor="start">将 IP 数据报封装为帧，经本地链路和物理介质发送；涵盖 OSI 数据链路层、物理层。</text>
