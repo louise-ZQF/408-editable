@@ -9,6 +9,15 @@ const emit = defineEmits<{ change: [html: string]; pending: [value: boolean]; er
 const surface = ref<HTMLElement>()
 const composing = ref(false)
 const symbols = ref(false)
+const colors = ref(false)
+const textColors = [
+  { label: '默认', value: '#334155' },
+  { label: '红色', value: '#dc2626' },
+  { label: '橙色', value: '#c2410c' },
+  { label: '绿色', value: '#15803d' },
+  { label: '蓝色', value: '#2563eb' },
+  { label: '紫色', value: '#7e22ce' },
+]
 const focused = ref(false), toolbarVisible = ref(false)
 let selection: Range | undefined
 let touched = false
@@ -46,6 +55,9 @@ function format(command: string, value?: string) {
   document.execCommand(command, false, value)
   protectMath(); rememberSelection(); changed()
 }
+function toggleColors() { rememberSelection(); colors.value = !colors.value }
+function setTextColor(color: string) { format('foreColor', color); colors.value = false }
+function closeColors() { colors.value = false; restoreSelection() }
 function addTable() { format('insertHTML', '<table><thead><tr><th>标题</th><th>说明</th></tr></thead><tbody><tr><td>点击填写</td><td>点击填写</td></tr><tr><td>点击填写</td><td>点击填写</td></tr></tbody></table><p><br></p>') }
 function paste(event: ClipboardEvent) {
   event.preventDefault()
@@ -110,11 +122,15 @@ defineExpose({ flush, focus, toggleToolbar })
     <div v-if="!inPlace || toolbarVisible" class="rich-toolbar" role="toolbar" aria-label="文字格式">
       <button type="button" aria-label="加粗" title="加粗" @mousedown.prevent @click="format('bold')"><b>加粗</b></button>
       <button type="button" aria-label="斜体" @mousedown.prevent @click="format('italic')"><i>斜体</i></button>
+      <button type="button" :aria-expanded="colors" @mousedown.prevent @click="toggleColors">文字颜色</button>
       <button type="button" aria-label="项目列表" @mousedown.prevent @click="format('insertUnorderedList')">列表</button>
       <button type="button" aria-label="编号列表" @mousedown.prevent @click="format('insertOrderedList')">编号</button>
       <button type="button" aria-label="插入表格" @mousedown.prevent @click="addTable">表格</button>
       <button type="button" :aria-expanded="symbols" @mousedown.prevent @click="symbols = !symbols">数学符号</button>
       <button type="button" aria-label="清除格式" @mousedown.prevent @click="format('removeFormat')">清除格式</button>
+      <div v-if="colors" class="rich-colors" role="group" aria-label="常用文字颜色" @keydown.esc.stop.prevent="closeColors">
+        <button v-for="color in textColors" :key="color.value" type="button" :aria-label="color.label === '默认' ? '恢复默认文字颜色' : '文字设为' + color.label" @mousedown.prevent @click="setTextColor(color.value)"><span class="rich-color-swatch" :style="{ backgroundColor: color.value }" aria-hidden="true"></span>{{ color.label }}</button>
+      </div>
     </div>
     <p v-if="!inPlace" class="rich-paste-hint">可以直接粘贴图片、截图或 GPT 的回答，文字和常见公式会自动排版。</p>
     <div v-if="symbols" class="rich-symbols" aria-label="常用数学符号"><button v-for="symbol in ['²','³','₀','₁','₂','≤','≥','≠','×','÷','√','∑','π','∞','→','∈']" :key="symbol" type="button" @mousedown.prevent @click="format('insertText', symbol)">{{ symbol }}</button></div>

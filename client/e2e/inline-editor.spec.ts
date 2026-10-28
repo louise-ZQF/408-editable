@@ -1,5 +1,41 @@
 import { expect, test } from '@playwright/test'
 
+test('选中文字换色和继续输入彩色文字，保存刷新后保留颜色与加粗', async ({ page }) => {
+  await page.goto('/#/knowledge/data-structures/ds-section-5')
+  await page.getByRole('button', { name: '编辑模式', exact: true }).click()
+  const block = page.locator('#kb-ds-5-1-1-1')
+  const surface = block.locator('.rich-inplace-surface')
+  await surface.fill('普通文字重点内容')
+  await surface.press('ControlOrMeta+A')
+  await block.getByRole('button', { name: '打开文字格式工具', exact: true }).click()
+  await block.getByRole('button', { name: '清除格式', exact: true }).click()
+  await surface.evaluate(element => {
+    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT)
+    let text = walker.nextNode()!
+    while (!text.textContent?.includes('重点内容')) text = walker.nextNode()!
+    const range = document.createRange()
+    range.setStart(text, 4); range.setEnd(text, 8)
+    const selection = window.getSelection()!
+    selection.removeAllRanges(); selection.addRange(range)
+    element.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }))
+  })
+  await block.getByRole('button', { name: '文字颜色', exact: true }).click()
+  await block.getByRole('button', { name: '文字设为红色', exact: true }).click()
+  await block.getByRole('button', { name: '加粗', exact: true }).click()
+  await expect(surface.locator('b, strong')).toHaveText('重点内容')
+  await expect(surface.locator('b, strong')).toHaveCSS('color', 'rgb(220, 38, 38)')
+
+  await surface.press('ArrowRight')
+  await block.getByRole('button', { name: '文字颜色', exact: true }).click()
+  await block.getByRole('button', { name: '文字设为蓝色', exact: true }).click()
+  await page.keyboard.insertText('蓝色新字')
+  await page.getByRole('button', { name: '完成编辑', exact: true }).click()
+  await page.reload()
+  await expect(block).toContainText('普通文字重点内容蓝色新字')
+  await expect(block.getByText('重点内容', { exact: true })).toHaveCSS('color', 'rgb(220, 38, 38)')
+  await expect(block.getByText('蓝色新字', { exact: true })).toHaveCSS('color', 'rgb(37, 99, 235)')
+})
+
 test('默认只读，进入编辑模式后提示框原位修改并自动保存', async ({ page }) => {
   await page.goto('/#/knowledge/data-structures/ds-section-5')
   const block = page.locator('#kb-ds-5-1-3-6')
