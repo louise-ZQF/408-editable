@@ -1,7 +1,7 @@
 import { ref } from 'vue'
 import type { KnowledgeArticleBlock, KnowledgeArticleData } from '@/content/knowledge-articles/types'
 import { getEditableArticle, editTree, findNode } from './content'
-import { addTrash, changeWorkspace, clone, uid } from './store'
+import { addTrash, changeWorkspace, clone, uid, workspace } from './store'
 
 export const inlineMode = ref(false)
 export const inlineFocusId = ref('')
@@ -59,6 +59,32 @@ export async function moveInlineBlock(pointId: string, subpointId: string, block
     const [block] = blocks.splice(i, 1); blocks.splice(j, 0, block)
   })
   inlineFeedback('顺序已更新')
+}
+export type InlineBlockLocation = { pointId: string; subpointId: string; blockId: string }
+export type InlineBlockDestination = { pointId: string; subpointId: string; beforeBlockId?: string }
+export async function relocateInlineBlock(source: InlineBlockLocation, destination: InlineBlockDestination) {
+  await flushInlineDrafts()
+  const [originalSource, originalTarget] = await Promise.all([
+    getEditableArticle(source.pointId),
+    source.pointId === destination.pointId ? Promise.resolve(undefined) : getEditableArticle(destination.pointId),
+  ])
+  const sourceArticle = clone(workspace.articles[source.pointId] || originalSource)
+  const targetArticle = source.pointId === destination.pointId ? sourceArticle : clone(workspace.articles[destination.pointId] || originalTarget!)
+  const sourceBlocks = sourceArticle.subpoints.find(s => s.id === source.subpointId)?.blocks
+  const targetBlocks = targetArticle.subpoints.find(s => s.id === destination.subpointId)?.blocks
+  const sourceIndex = sourceBlocks?.findIndex(block => block.id === source.blockId) ?? -1
+  const targetIndex = destination.beforeBlockId ? targetBlocks?.findIndex(block => block.id === destination.beforeBlockId) ?? -1 : targetBlocks?.length ?? -1
+  if (!sourceBlocks || sourceIndex < 0 || !targetBlocks || targetIndex < 0) throw new Error('内容位置已变化，请重新拖动')
+  if (sourceBlocks === targetBlocks && (targetIndex === sourceIndex || targetIndex === sourceIndex + 1)) { inlineFeedback('位置未改变'); return }
+  if (sourceBlocks !== targetBlocks && targetBlocks.some(block => block.id === source.blockId)) throw new Error('目标小节已有相同编号的内容，已保留原位置')
+  const [block] = sourceBlocks.splice(sourceIndex, 1)
+  const index = destination.beforeBlockId ? targetBlocks.findIndex(item => item.id === destination.beforeBlockId) : targetBlocks.length
+  targetBlocks.splice(index, 0, block)
+  changeWorkspace('拖动调整正文位置', data => {
+    data.articles[source.pointId] = sourceArticle
+    if (source.pointId !== destination.pointId) data.articles[destination.pointId] = targetArticle
+  })
+  inlineFeedback('位置已更新，可以撤销')
 }
 export const inlineKinds = { paragraph: '文字段落', formula: '公式', image: '图片', callout: '提示框', html: '表格', animation: '原站动画', embed: '自定义动画' } as const
 export async function addInlineBlock(pointId: string, subpointId: string, type: keyof typeof inlineKinds = 'paragraph', afterId?: string) {

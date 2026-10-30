@@ -141,7 +141,7 @@ function renderInlineMath(text: string): string {
         <button v-if="editable && inlineMode" class="inline-subpoint-delete" @click="inlineAction(() => deleteInlineSubpoint(article.pointId, subpoint.id))">删除小节</button>
       </header>
 
-      <div class="grid gap-7">
+      <div class="grid gap-7" :class="{ 'inline-drop-zone': editable && inlineMode }" :data-inline-drop-point="editable && inlineMode ? article.pointId : undefined" :data-inline-drop-subpoint="editable && inlineMode ? subpoint.id : undefined">
         <section
           v-for="(block, blockIndex) in subpoint.blocks"
           :id="block.id"

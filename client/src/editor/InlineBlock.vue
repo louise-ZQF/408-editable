@@ -4,6 +4,7 @@ import RichTextEditor from './RichTextEditor.vue'
 import { clone, uid } from './store'
 import { animations, ensureAnimations } from './content'
 import { clipboardImages, readImage } from './images'
+import { useInlineBlockDrag } from './useInlineBlockDrag'
 import { addInlineBlock, deleteInlineBlock, inlineAction, inlineFocusId, inlineKinds, inlineMode, moveInlineBlock, refreshDirtyCount, registerInlineDraft, saveInlineBlock } from './inline'
 import type { KnowledgeArticleBlock } from '@/content/knowledge-articles/types'
 
@@ -13,6 +14,7 @@ const editing = ref(false), addMenu = ref(false), busy = ref(false), error = ref
 const richFocused = ref(false)
 const draft = ref<any>(clone(props.block)), root = ref<HTMLElement>()
 const richEditor = ref<InstanceType<typeof RichTextEditor>>()
+const drag = useInlineBlockDrag(root, active, () => ({ pointId: props.pointId, subpointId: props.subpointId, blockId: props.block.id }))
 const richBlock = computed(() => ['paragraph', 'html', 'callout', 'formula'].includes(props.block.type))
 const catalog = ref<string[]>([])
 const imageReading = ref(false), richPending = ref(false)
@@ -100,6 +102,7 @@ watch(inlineMode, value => { if (!value) { richFocused.value = false; addMenu.va
 <template>
   <div ref="root" class="inline-block" :class="{ 'inline-block-enabled': active, 'inline-block-editing': editing && !richBlock }" :data-inline-block="block.id" @focusout="focusout" @keydown="keydown">
     <div v-if="active && (!editing || richBlock)" class="inline-block-tools" aria-label="段落操作">
+      <button type="button" class="inline-drag-handle" aria-label="拖动这段内容" title="按住拖动排序，也可使用旁边的上下移动按钮" @pointerdown="drag.start" @click.prevent @dragstart.prevent><svg width="14" height="18" viewBox="0 0 14 18" fill="currentColor" aria-hidden="true"><circle cx="4" cy="4" r="1.5"/><circle cx="10" cy="4" r="1.5"/><circle cx="4" cy="9" r="1.5"/><circle cx="10" cy="9" r="1.5"/><circle cx="4" cy="14" r="1.5"/><circle cx="10" cy="14" r="1.5"/></svg>拖动</button>
       <button :aria-label="richBlock ? '打开文字格式工具' : '修改这段内容'" @mousedown.prevent @click="richBlock ? richEditor?.toggleToolbar() : start()">{{ richBlock ? '格式' : '编辑' }}</button><button :disabled="first" aria-label="向上移动这段内容" @click="inlineAction(() => moveInlineBlock(pointId, subpointId, block.id, -1))">↑</button><button :disabled="last" aria-label="向下移动这段内容" @click="inlineAction(() => moveInlineBlock(pointId, subpointId, block.id, 1))">↓</button><button :aria-expanded="addMenu" aria-label="在此处添加内容" @click="addMenu = !addMenu">＋</button><button class="inline-danger" aria-label="删除这段内容" @click="inlineAction(() => deleteInlineBlock(pointId, subpointId, block.id))">删除</button>
     </div>
     <div v-if="addMenu && active" class="inline-type-menu"><button v-for="(name, kind) in inlineKinds" :key="kind" @click="inlineAction(() => add(kind))">{{ name }}</button></div>

@@ -1,5 +1,41 @@
 import { expect, test } from '@playwright/test'
 
+test('拖动表格排序、取消拖动和刷新恢复，保留尚未失焦的正文修改', async ({ page }) => {
+  await page.goto('/#/knowledge/computer-network/section-transport-medium')
+  await page.getByRole('button', { name: '编辑模式', exact: true }).click()
+  const paragraph = page.locator('#kb-medium-compare-1')
+  const table = page.locator('#kb-medium-compare-2')
+  const group = page.locator('[data-inline-drop-subpoint="medium-compare"]')
+  await paragraph.locator('.rich-inplace-surface').fill('拖动后也要保留刚输入的这句话。')
+  await table.hover({ position: { x: 30, y: 15 } })
+  const handle = table.getByRole('button', { name: '拖动这段内容', exact: true })
+  const from = (await handle.boundingBox())!
+  const to = (await paragraph.boundingBox())!
+  await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2)
+  await page.mouse.down()
+  await page.mouse.move(to.x + to.width / 2, to.y + 5, { steps: 12 })
+  await expect(page.locator('.inline-drop-indicator')).toBeVisible()
+  await page.mouse.up()
+  await expect(group.locator(':scope > section').first()).toHaveAttribute('id', 'kb-medium-compare-2')
+  await expect(paragraph).toContainText('拖动后也要保留刚输入的这句话。')
+  await expect(table.locator('table')).toContainText('光纤')
+
+  await paragraph.hover()
+  const cancelHandle = (await paragraph.getByRole('button', { name: '拖动这段内容', exact: true }).boundingBox())!
+  await page.mouse.move(cancelHandle.x + 10, cancelHandle.y + 10)
+  await page.mouse.down()
+  await page.mouse.move(cancelHandle.x - 30, cancelHandle.y - 50, { steps: 5 })
+  await expect(page.locator('.inline-drag-preview')).toBeVisible()
+  await page.keyboard.press('Escape')
+  await page.mouse.up()
+  await expect(page.locator('.inline-drag-preview, .inline-drop-indicator')).toHaveCount(0)
+  await page.getByRole('button', { name: '完成编辑', exact: true }).click()
+  await page.reload()
+  await expect(page.locator('#medium-compare > .grid > section').first()).toHaveAttribute('id', 'kb-medium-compare-2')
+  await expect(paragraph).toContainText('拖动后也要保留刚输入的这句话。')
+  await expect(page.getByRole('button', { name: '拖动这段内容', exact: true })).toHaveCount(0)
+})
+
 test('选中文字换色和继续输入彩色文字，保存刷新后保留颜色与加粗', async ({ page }) => {
   await page.goto('/#/knowledge/data-structures/ds-section-5')
   await page.getByRole('button', { name: '编辑模式', exact: true }).click()
