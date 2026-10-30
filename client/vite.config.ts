@@ -67,6 +67,8 @@ export default defineConfig({
   server: {
     port: 5173,
     host: '127.0.0.1',
+    // 同步接口单独校验来源并处理预检，其余本机资源不开放跨域。
+    cors: false,
   },
   build: {
     sourcemap: process.env.VITE_SOURCEMAP === 'true',

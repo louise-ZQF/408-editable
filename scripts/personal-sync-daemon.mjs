@@ -11,6 +11,7 @@ const gh = process.env.PERSONAL_SYNC_GH || 'gh'
 function command(args, input) {
   return new Promise((resolve, reject) => {
     const child = spawn(gh, args, { stdio: ['pipe', 'pipe', 'pipe'], env: { ...process.env, GH_PROMPT_DISABLED: '1' } })
+    child.stdout.setEncoding('utf8'); child.stderr.setEncoding('utf8')
     let output = '', error = ''
     const timer = setTimeout(() => { child.kill(); reject(new Error('GitHub 请求超时，本机内容已保留')) }, 45_000)
     child.stdout.on('data', chunk => { output += chunk })
