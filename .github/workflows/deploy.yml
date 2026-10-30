@@ -59,6 +59,7 @@ jobs:
     timeout-minutes: 30
     env:
       NODE_OPTIONS: --max-old-space-size=6144
+      VITE_E2E_FIXTURE: '1'
     steps:
       - name: Checkout
         uses: actions/checkout@v4

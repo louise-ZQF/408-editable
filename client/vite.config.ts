@@ -34,6 +34,10 @@ export default defineConfig({
       closeBundle() {
         const outDir = resolve(__dirname, 'dist')
         mkdirSync(join(outDir, 'search'), { recursive: true })
+        if (process.env.VITE_E2E_FIXTURE === '1') {
+          mkdirSync(join(outDir, 'editor'), { recursive: true })
+          writeFileSync(join(outDir, 'editor/content.json'), JSON.stringify({ format: '408-editable-v1', updatedAt: 0, books: null, articles: {}, exams: {}, deletedExams: [], trash: [], settings: {} }))
+        }
 
         // ① GitHub Pages 默认走 Jekyll，会忽略以下划线开头的文件/目录
         writeFileSync(join(outDir, '.nojekyll'), '')

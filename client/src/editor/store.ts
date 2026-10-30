@@ -1,6 +1,7 @@
 import { reactive, ref } from 'vue'
 import type { Book, Chapter, Exam } from '@/types'
 import type { KnowledgeArticleData } from '@/content/knowledge-articles/types'
+import { initializeAutomaticSync, queueAutomaticSync } from './automaticSync'
 
 export type TrashItem = { id: string; kind: string; title: string; parentId: string; index: number; data: any; time: number }
 export type Settings = {
@@ -128,6 +129,7 @@ function putIDB(data: WorkspaceData): Promise<void> {
 }
 export async function initializeWorkspace() {
   let local: WorkspaceData | undefined
+  let automaticBase: WorkspaceData | undefined
   let lastPublishedAt = 0
   try {
     db = await new Promise<IDBDatabase>((resolve, reject) => {
@@ -141,6 +143,7 @@ export async function initializeWorkspace() {
     })
     if (stored) local = validateWorkspace(stored)
     lastPublishedAt = await new Promise<number>(resolve => { const req = db!.transaction('workspace').objectStore('workspace').get('lastPublishedAt'); req.onsuccess = () => resolve(Number(req.result) || 0); req.onerror = () => resolve(0) })
+    automaticBase = await new Promise<WorkspaceData | undefined>(resolve => { const req = db!.transaction('workspace').objectStore('workspace').get('automaticSyncBase'); req.onsuccess = () => resolve(req.result); req.onerror = () => resolve(undefined) })
   } catch { errorMessage.value = '浏览器存储不可用，请及时导出备份。' }
   let published: WorkspaceData | undefined
   try {
@@ -167,7 +170,17 @@ export async function initializeWorkspace() {
   unpublished.value = !!local && local.updatedAt !== (published?.updatedAt || 0)
   if (published && chosen === published) await markPublished(published.updatedAt)
   saveStatus.value = diskAvailable.value ? '已保存到浏览器和本机文件' : '已保存到此浏览器'
-  if (chosen && db) await putIDB(chosen).catch(() => {})
+  await initializeAutomaticSync({
+    get: snapshot,
+    apply: async data => { validateWorkspace(data); Object.assign(workspace, data); revision.value++; if (db) await putIDB(snapshot()); errorMessage.value = '' },
+    saveBase: async data => {
+      if (!db) return
+      await new Promise<void>((resolve, reject) => { const tx = db!.transaction('workspace', 'readwrite'); tx.objectStore('workspace').put(clone(data), 'automaticSyncBase'); tx.oncomplete = () => resolve(); tx.onerror = () => reject(tx.error) })
+    },
+    published: async time => { await markPublished(time); unpublished.value = workspace.updatedAt > time },
+    canApply: () => (!editorOpen.value || !!document.querySelector('.ed-tabs .active')?.textContent?.includes('备份与发布')) && !document.querySelector('[contenteditable="true"]') && !document.activeElement?.closest('input, textarea, select'),
+  }, automaticBase, diskAvailable.value)
+  if (chosen && db) await putIDB(snapshot()).catch(() => {})
 }
 function queueSave() {
   const data = snapshot()
@@ -176,7 +189,8 @@ function queueSave() {
     let browserSaved = false
     try { await putIDB(data); browserSaved = true } catch { /* 仍尝试磁盘保存。 */ }
     let diskSaved = false
-    if (diskAvailable.value) {
+    const automatic = queueAutomaticSync(data)
+    if (diskAvailable.value && !automatic) {
       try {
         const r = await fetch('/__editor/data', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
         if (!r.ok) throw new Error('文件保存失败')

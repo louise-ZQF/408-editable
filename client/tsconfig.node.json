@@ -6,12 +6,15 @@
       "node"
     ],
     "module": "ESNext",
+    "target": "ES2022",
     "moduleResolution": "Bundler",
     "allowImportingTsExtensions": true,
     "noEmit": true
   },
   "include": [
     "vite.config.ts",
-    "editor-local-plugin.ts"
+    "editor-local-plugin.ts",
+    "../scripts/personal-sync-core.mts",
+    "src/editor/workspaceMerge.ts"
   ]
 }

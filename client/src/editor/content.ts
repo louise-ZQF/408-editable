@@ -6,14 +6,18 @@ import type { KnowledgeArticleData } from '@/content/knowledge-articles/types'
 import type { ManimWebAnimation } from '@/animations/types'
 
 export const animations = new Map<string, ManimWebAnimation>()
+const originalImageSources = new Map<string, string>()
 export function rememberAnimations(articles: Record<string, KnowledgeArticleData>) {
-  for (const article of Object.values(articles)) for (const sub of article.subpoints) for (const b of sub.blocks) if (b.type === 'animation') animations.set(b.animation.id, b.animation)
+  for (const article of Object.values(articles)) for (const sub of article.subpoints) for (const b of sub.blocks) {
+    if (b.type === 'animation') animations.set(b.animation.id, b.animation)
+    if (b.type === 'image') originalImageSources.set(b.id, b.src)
+  }
 }
 export function serializeArticle(article: KnowledgeArticleData): KnowledgeArticleData {
   return JSON.parse(JSON.stringify(article, (key, value) => key === 'animation' ? { id: value.id } : value))
 }
 export function hydrateArticle(article: KnowledgeArticleData): KnowledgeArticleData {
-  return { ...article, subpoints: article.subpoints.map(s => ({ ...s, blocks: s.blocks.map(b => b.type === 'animation' && animations.has(b.animation.id) ? { ...b, animation: animations.get(b.animation.id)! } : b) })) }
+  return { ...article, subpoints: article.subpoints.map(s => ({ ...s, blocks: s.blocks.map(b => b.type === 'animation' && animations.has(b.animation.id) ? { ...b, animation: animations.get(b.animation.id)! } : b.type === 'image' && b.sourceImport && b.src.startsWith('/src/') && originalImageSources.has(b.id) ? { ...b, src: originalImageSources.get(b.id)! } : b) })) }
 }
 export async function ensureAnimations() {
   for (const book of ['data-structures', 'computer-organization', 'operating-systems', 'computer-network']) await loadOriginalBookContent(book)
