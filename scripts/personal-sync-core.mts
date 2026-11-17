@@ -2,6 +2,7 @@ import { readFile, writeFile, rename, mkdir, copyFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { resolve, join } from 'node:path'
 import { createHash } from 'node:crypto'
+import { StringDecoder } from 'node:string_decoder'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { contentSignature, mergeWorkspaces } from '../client/src/editor/workspaceMerge.ts'
 
@@ -97,9 +98,15 @@ export function personalBridge() {
       if ((path === '/__editor/sync' && req.method !== 'POST') || (path === '/__editor/data' && req.method !== 'PUT')) { res.statusCode = 405; res.end('{}'); return }
       if (!req.headers['content-type']?.startsWith('application/json')) throw new Error('保存请求必须为 JSON')
       if (path === '/__editor/sync' && !config.enabled) throw new Error('这台 Mac 尚未启用自动同步服务')
+      const decoder = new StringDecoder('utf8')
       let body = ''
-      for await (const chunk of req) { body += chunk; if (Buffer.byteLength(body) > 80 * 1024 * 1024) throw new Error('内容超过本机保存上限') }
-      const payload = JSON.parse(body)
+      let bytes = 0
+      for await (const chunk of req) {
+        bytes += chunk.length
+        if (bytes > 80 * 1024 * 1024) throw new Error('内容超过本机保存上限')
+        body += decoder.write(chunk)
+      }
+      const payload = JSON.parse(body + decoder.end())
       const saved = await mergeIncoming(path === '/__editor/data' ? payload : payload.workspace, path === '/__editor/sync' ? payload.base : undefined, path === '/__editor/data')
       res.end(JSON.stringify({ saved: true, enabled: config.enabled, workspace: saved, status }))
     } catch (error) { res.statusCode = 409; res.end(JSON.stringify({ error: error instanceof Error ? error.message : String(error) })) }
