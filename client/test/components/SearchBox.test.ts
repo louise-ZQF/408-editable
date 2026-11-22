@@ -26,7 +26,7 @@ describe('SearchBox', () => {
     const { wrapper } = await mountSearch()
     const input = wrapper.find('input')
     expect(input.exists()).toBe(true)
-    expect(input.attributes('placeholder')).toContain('搜索知识点或章节')
+    expect(input.attributes('placeholder')).toContain('题干关键词或真题题号')
   })
 
   it('输入文本更新 v-model', async () => {
@@ -45,7 +45,7 @@ describe('SearchBox', () => {
   it('提交后跳转到搜索路由（带 q 参数）', async () => {
     const { wrapper, router } = await mountSearch()
     await wrapper.find('input').setValue('  二叉树  ')
-    await wrapper.trigger('submit')
+    await wrapper.get('form').trigger('submit')
     await flushPromises()
     await nextTick()
     expect(router.currentRoute.value.name).toBe('search')
@@ -55,7 +55,7 @@ describe('SearchBox', () => {
   it('空输入（全空格）提交不跳转', async () => {
     const { wrapper, router } = await mountSearch()
     await wrapper.find('input').setValue('   ')
-    await wrapper.trigger('submit')
+    await wrapper.get('form').trigger('submit')
     expect(router.currentRoute.value.name).not.toBe('search')
   })
 })

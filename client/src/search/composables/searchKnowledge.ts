@@ -2,7 +2,7 @@
  * 知识搜索：构建期把内容聚合为 section 文档，MiniSearch 直接负责评分与排序。
  * 运行时只保留同义词扩展、摘要定位和 SearchResult 结构转换。
  */
-import type { SearchResult as MiniSearchResult } from "minisearch";
+import MiniSearch, { type SearchResult as MiniSearchResult } from "minisearch";
 import type {
   KnowledgeMatchField,
   SearchKnowledgeFragmentDoc,
@@ -11,6 +11,7 @@ import type {
 } from "@/search/types";
 import type { LoadedCorpus } from "@/search/shared";
 import { extractSnippet, normalizeIo } from "@/search/shared";
+import { normalizeSearch, phrasePattern, plainSearchText, searchPhrases } from "@/search/query";
 
 function asciiWordMatch(text: string, word: string): boolean {
   const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -22,7 +23,7 @@ export function expandWithSynonyms(
   rawQuery: string,
   synonyms: Map<string, string[]>,
 ): string {
-  const text = String(rawQuery);
+  const text = rawQuery.normalize("NFKC");
   const expanded = new Set<string>();
   text
     .replace(/[\p{P}]/gu, " ")
@@ -43,6 +44,23 @@ export function expandWithSynonyms(
 
 type KnowledgeHit = MiniSearchResult & SearchKnowledgeSectionDoc;
 type FragmentHit = MiniSearchResult & SearchKnowledgeFragmentDoc;
+type Match = Pick<SearchKnowledgeFragmentDoc, "kind" | "partIndex" | "blockIndex">;
+
+function findPhraseMatch(hit: KnowledgeHit, patterns: RegExp[]) {
+  const matches = (text: string) => patterns.some((pattern) => pattern.test(normalizeSearch(text)));
+  if (matches(hit.sectionTitle)) return { tier: 3, match: undefined };
+
+  let body: Match | undefined;
+  for (const [partIndex, part] of hit.parts.entries()) {
+    if (matches(part.pointTitle)) return { tier: 2, match: { kind: "point", partIndex, blockIndex: -1 } as const };
+    if (matches(part.subpointTitle)) return { tier: 2, match: { kind: "subpoint", partIndex, blockIndex: -1 } as const };
+    if (!body) {
+      const blockIndex = part.blockTexts.findIndex(matches);
+      if (blockIndex >= 0) body = { kind: "block", partIndex, blockIndex };
+    }
+  }
+  return { tier: body ? 1 : 0, match: body };
+}
 
 function findBestFragments(
   expandedQuery: string,
@@ -50,6 +68,7 @@ function findBestFragments(
   loaded: LoadedCorpus,
 ): Map<string, FragmentHit> {
   const bestBySection = new Map<string, FragmentHit>();
+  if (!sectionIds.size) return bestBySection;
   const fragments = loaded.fragmentIndex.search(expandedQuery, {
     combineWith: "OR",
     boost: { title: 2, text: 1 },
@@ -68,36 +87,50 @@ export function searchKnowledge(
   query: string,
   loaded: LoadedCorpus,
   topK: number,
+  bookIds?: ReadonlySet<string>,
 ): SearchResult[] {
   const expandedQuery = expandWithSynonyms(query, loaded.synonyms);
-  const hits = loaded.sectionIndex.search(expandedQuery, {
-    combineWith: "OR",
+  const filter = (hit: MiniSearchResult) => !bookIds || bookIds.has(hit.bookId);
+  const options = {
+    filter,
     boost: {
       sectionTitle: 3,
       pointTitles: 2.5,
       subpointTitles: 2,
       body: 1,
     },
-  }) as KnowledgeHit[];
+  };
+  const terms = searchPhrases(query, loaded.synonyms);
+  const patterns = terms.map(phrasePattern);
+  const allWordHits = loaded.sectionIndex.search(normalizeSearch(query), { ...options, combineWith: "AND" });
+  const hits = (allWordHits.length ? allWordHits : loaded.sectionIndex.search(expandedQuery, {
+    ...options,
+    combineWith: "OR",
+  })) as KnowledgeHit[];
+  const candidates = new Map(hits.map((hit) => [hit.sectionId, hit]));
+  for (const hit of loaded.sectionIndex.search(MiniSearch.wildcard, { filter }) as KnowledgeHit[]) {
+    if (!candidates.has(hit.sectionId)) candidates.set(hit.sectionId, hit);
+  }
 
-  const topHits = hits.slice(0, topK);
+  const ranked = [...candidates.values()].map((hit) => ({ hit, ...findPhraseMatch(hit, patterns) }));
+  const hasFullMatch = ranked.some(({ tier }) => tier > 0);
+  const topHits = ranked
+    .filter(({ hit, tier }) => hasFullMatch ? tier > 0 : hit.score > 0)
+    .sort((a, b) => b.tier - a.tier || b.hit.score - a.hit.score)
+    .slice(0, topK);
   const bestFragments = findBestFragments(
     expandedQuery,
-    new Set(topHits.map((hit) => hit.sectionId)),
+    new Set(topHits.filter(({ tier }) => tier === 0).map(({ hit }) => hit.sectionId)),
     loaded,
   );
 
-  return topHits.map((hit) => {
-    const fragment = bestFragments.get(hit.sectionId);
+  return topHits.map(({ hit, match, tier }) => {
+    const fragment = match ?? bestFragments.get(hit.sectionId);
     const matchedPart = fragment ? hit.parts[fragment.partIndex] : undefined;
     const fallbackPart = matchedPart || hit.parts[0];
-    const snippetText = fragment?.kind === "point"
-      ? matchedPart?.pointTitle
-      : fragment?.kind === "subpoint"
-        ? matchedPart?.subpointTitle
-        : fragment?.kind === "block"
-          ? matchedPart?.blockTexts[fragment.blockIndex]
-          : hit.sectionTitle;
+    const snippetText = fragment?.kind === "block"
+      ? matchedPart?.blockTexts[fragment.blockIndex]
+      : (matchedPart ?? fallbackPart)?.blockTexts.find(Boolean);
     const blockId = fragment?.kind === "block"
       ? matchedPart?.blockIds[fragment.blockIndex] || matchedPart?.blockId
       : matchedPart?.blockId || fallbackPart?.blockId;
@@ -105,7 +138,7 @@ export function searchKnowledge(
       ? `article-${matchedPart.pointId}`
       : fragment?.kind === "subpoint"
         ? matchedPart?.subpointId
-        : blockId;
+          : tier === 3 ? undefined : blockId;
     const matchField: KnowledgeMatchField = fragment?.kind === "point"
       ? "point"
       : fragment?.kind === "subpoint"
@@ -115,11 +148,11 @@ export function searchKnowledge(
           : "section";
     return {
       type: "knowledge" as const,
-      title: hit.sectionTitle,
-      subtitle: [hit.bookTitle, hit.chapterTitle, hit.sectionTitle]
+      title: matchedPart?.pointTitle || hit.sectionTitle,
+      subtitle: [hit.bookTitle, hit.chapterTitle, ...(matchedPart?.pointTitle !== hit.sectionTitle && matchedPart ? [hit.sectionTitle] : [])]
         .filter(Boolean)
         .join(" › "),
-      snippet: extractSnippet(snippetText || hit.sectionTitle, query),
+      snippet: extractSnippet(plainSearchText(snippetText || ""), terms.join(" "), 100),
       route: anchor ? `${hit.route}?q=${encodeURIComponent(query)}#${encodeURIComponent(anchor)}` : hit.route,
       blockId,
       blockIds: hit.allBlockIds,
@@ -135,7 +168,7 @@ export function searchKnowledge(
       pointTitle: matchedPart?.pointTitle,
       subpointTitle: matchedPart?.subpointTitle,
       score: hit.score,
-      highlightQuery: query,
+      highlightQuery: terms.join(" "),
     };
   });
 }

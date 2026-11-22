@@ -2,6 +2,7 @@
 import InlineTitle from '@/editor/InlineTitle.vue'
 import { addInlineArticle, inlineAction, inlineMode } from '@/editor/inline'
 import { openEditor } from '@/editor/store'
+import { Search } from '@element-plus/icons-vue'
 import type { Section } from "@/types";
 import ReaderPageNavigation from "@/components/ReaderPageNavigation.vue";
 import KnowledgeArticle from "./KnowledgeArticle.vue";
@@ -36,7 +37,7 @@ const emit = defineEmits<{ page: [page: number] }>();
         </div>
         <template v-else-if="section">
           <header
-            class="mb-10 border-b border-[#dce3ec] pb-7 flex items-baseline gap-4"
+            class="mb-7 flex flex-wrap items-baseline gap-x-4 gap-y-1 border-b border-[#dce3ec] pb-4 sm:mb-10 sm:pb-7"
           >
             <h1
               class="m-0 text-[clamp(1.7rem,3vw,2.25rem)] font-semibold leading-tight tracking-[-.045em] text-[#071225]"
@@ -60,6 +61,13 @@ const emit = defineEmits<{ page: [page: number] }>();
                 aria-hidden="true"
                 >→</span
               >
+            </RouterLink>
+            <RouterLink
+              :to="{ name: 'search' }"
+              class="ml-auto inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-lg px-2 text-sm font-semibold text-[#31559e] hover:bg-[#eef4ff] focus-visible:outline-2 focus-visible:outline-[#2855bf]"
+            >
+              <Search class="h-4 w-4" aria-hidden="true" />
+              全站搜索
             </RouterLink>
           </header>
 

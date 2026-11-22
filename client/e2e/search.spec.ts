@@ -1,39 +1,40 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from '@playwright/test'
 
-/**
- * 搜索页：输入关键词出结果、命中文本含 <mark> 高亮。
- */
-test("搜索页：输入关键词出现高亮结果", async ({ page }) => {
-  const badStatus: string[] = [];
-  page.on("response", (res) => {
-    if (res.status() >= 400) badStatus.push(res.url());
-  });
+test('搜索完整术语优先，按科目筛选后能够定位正文', async ({ page }) => {
+  await page.goto('/#/search')
+  const input = page.getByRole('textbox', { name: '搜索', exact: true })
+  await input.fill('快')
+  await input.fill('快表')
 
-  await page.goto("/#/search");
-  await expect(page.locator('.search-input')).toBeVisible({ timeout: 30_000 });
+  const first = page.locator('.result-item').first()
+  await expect(first).toContainText('虚拟存储器')
+  await expect(first.locator('mark').first()).toBeVisible()
+  await expect(page.locator('.result-item').filter({ hasText: '线性表的概念' })).toHaveCount(0)
 
-  // 输入关键词（先确保索引资源可加载，等待页面空闲）
-  const input = page.locator('.search-input');
-  await input.fill("二叉树");
-  await input.press("Enter");
+  await page.getByRole('button', { name: '知识点', exact: true }).click()
+  await page.getByLabel('科目', { exact: true }).selectOption('os')
+  await expect(first).toContainText('操作系统')
+  await expect(page.locator('.result-item').filter({ hasText: '计算机组成原理' })).toHaveCount(0)
+  await first.click()
+  await expect(page).toHaveURL(/knowledge\/operating-systems\/os-section-virtual-memory.*#co-vm-tlb/)
+  await page.goBack()
+  await expect(input).toHaveValue('快表')
+  await expect(page.getByLabel('科目', { exact: true })).toHaveValue('os')
+})
 
-  // 出现结果条目容器（可能无结果则只断言请求无 404 + 无报错）
-  await page.waitForTimeout(3000);
+test('真题支持题干关键词、完整题号和清空搜索', async ({ page }) => {
+  await page.goto('/#/search?q=TCP&type=exam&subject=cn')
+  const first = page.locator('.result-item').first()
+  await expect(first).toContainText('真题 · 计算机网络')
+  await expect(first).toHaveAttribute('href', /\/exams\?.*exam=/)
 
-  const resultItems = page.locator(".result-item");
-  const markEls = page.locator(".result-item mark");
+  await page.getByLabel('科目', { exact: true }).selectOption('')
+  await page.getByRole('textbox', { name: '搜索', exact: true }).fill('２０１９年第１题')
+  await expect(page.locator('.result-item')).toHaveCount(1)
+  await expect(first.getByRole('heading')).toHaveText('2019年第1题')
 
-  // 若存在结果，则断言命中文本被 <mark> 包裹至少一次
-  const itemCount = await resultItems.count();
-  if (itemCount > 0) {
-    const markCount = await markEls.count();
-    expect(markCount).toBeGreaterThan(0);
-  }
-  // 控制台无 error（搜索解析失败会抛错）
-  const errors: string[] = [];
-  page.on("console", (msg) => {
-    if (msg.type() === "error") errors.push(msg.text());
-  });
-  expect(errors.filter((e) => !e.includes("favicon"))).toEqual([]);
-  expect(badStatus).toEqual([]);
-});
+  await page.getByRole('button', { name: '清空搜索' }).click()
+  await expect(page.getByRole('textbox', { name: '搜索', exact: true })).toBeFocused()
+  await expect(page.locator('.result-item')).toHaveCount(0)
+  await expect(page).not.toHaveURL(/[?&]q=/)
+})

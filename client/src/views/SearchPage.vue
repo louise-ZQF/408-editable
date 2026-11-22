@@ -1,24 +1,32 @@
 <script setup lang="ts">
+import { useRouter } from 'vue-router'
 import SearchPageHeader from '@/components/search-page/SearchPageHeader.vue'
 import SearchResultsPanel from '@/components/search-page/SearchResultsPanel.vue'
 import { useSearchPage } from '@/components/search-page/useSearchPage'
+import type { SearchResult } from '@/search/types'
 
-const searchPage = useSearchPage()
+const router = useRouter()
+const { query, activeQuery, filters, failed, loading, results, submit, setFilters, selectQuery, saveQueryBeforeLeaving } = useSearchPage()
+
+async function openResult(result: SearchResult) {
+  await saveQueryBeforeLeaving()
+  await router.push(result.route)
+}
 </script>
 
 <template>
-  <div class="min-h-screen bg-white font-sans text-[#0a1d40]">
-    <SearchPageHeader v-model="searchPage.query.value" @submit="searchPage.submit" />
+  <div class="min-h-screen bg-[#f7f9fc] text-[#122748]">
+    <SearchPageHeader v-model="query" @submit="submit" />
     <SearchResultsPanel
-      :loading="searchPage.loading.value"
-      :page="searchPage.page.value"
-      :page-size="searchPage.pageSize"
-      :query="searchPage.query.value"
-      :results="searchPage.pagedResults.value"
-      :total="searchPage.total.value"
-      :total-pages="searchPage.totalPages.value"
-      @page="searchPage.goToPage"
-      @select="searchPage.openResult"
+      :loading="loading"
+      :failed="failed"
+      :query="activeQuery"
+      :results="results"
+      :filters="filters"
+      @filter="setFilters"
+      @example="selectQuery"
+      @retry="submit"
+      @select="openResult"
     />
   </div>
 </template>

@@ -1,126 +1,83 @@
-import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { useSearch } from "@/search/composables/useSearch";
-import type { SearchResult } from "@/search/types";
-
-const MAX_QUERY_LEN = 20;
-const PAGE_SIZE = 10;
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { findSearchResults } from '@/search/composables/useSearch'
+import { MAX_SEARCH_LENGTH, SEARCH_SUBJECTS, type SearchFilters, type SearchScope, type SearchSubject } from '@/search/query'
+import type { SearchResult } from '@/search/types'
 
 export function useSearchPage() {
-  const route = useRoute();
-  const router = useRouter();
-  const loading = ref(false);
-  const results = ref<SearchResult[]>([]);
-  const exacts = ref<SearchResult[]>([]);
-  const page = ref(1);
-  const { query, search, dispose } = useSearch({ topK: 8 });
+  const route = useRoute()
+  const router = useRouter()
+  const queryFromRoute = () => typeof route.query.q === 'string' ? route.query.q.slice(0, MAX_SEARCH_LENGTH) : ''
+  const query = ref(queryFromRoute())
+  const activeQuery = ref('')
+  const results = ref<SearchResult[]>([])
+  const loading = ref(false)
+  const failed = ref(false)
+  const filters = computed<SearchFilters>(() => ({
+    scope: route.query.type === 'exam' || route.query.type === 'knowledge' ? route.query.type : 'all',
+    subject: SEARCH_SUBJECTS.find((item) => item.id === route.query.subject)?.id ?? '',
+  }))
 
-  const mergedResults = computed(() => [...exacts.value, ...results.value]);
-  const total = computed(() => mergedResults.value.length);
-  const totalPages = computed(() =>
-    Math.max(1, Math.ceil(total.value / PAGE_SIZE)),
-  );
-  const pagedResults = computed(() => {
-    const start = (page.value - 1) * PAGE_SIZE;
-    return mergedResults.value.slice(start, start + PAGE_SIZE);
-  });
+  let timer: ReturnType<typeof setTimeout> | undefined
+  let sequence = 0
 
-  watch(query, (value) => {
-    if (value.length > MAX_QUERY_LEN)
-      query.value = value.slice(0, MAX_QUERY_LEN);
-  });
-
-  function clearResults() {
-    results.value = [];
-    exacts.value = [];
-  }
-
-  function applyResults(outcome: Awaited<ReturnType<typeof search>>) {
-    if (!outcome) return;
-    exacts.value = outcome.exact;
-    results.value = outcome.results;
-    page.value = 1;
-  }
-
-  async function runInitialSearch(value: string) {
-    if (!value.trim()) {
-      clearResults();
-      return;
-    }
-    loading.value = true;
+  async function runSearch(current: string, request: number) {
+    const currentFilters = filters.value
     try {
-      applyResults(await search(value));
+      const found = await findSearchResults(current, currentFilters)
+      if (request === sequence) results.value = found
+    } catch {
+      if (request === sequence) failed.value = true
     } finally {
-      loading.value = false;
+      if (request === sequence) loading.value = false
     }
   }
 
-  async function runLiveSearch() {
-    if (!query.value.trim()) {
-      clearResults();
-      loading.value = false;
-      return;
-    }
-    loading.value = true;
-    try {
-      applyResults(await search());
-    } finally {
-      loading.value = false;
-    }
+  function queueSearch(delay: number) {
+    clearTimeout(timer)
+    const request = ++sequence
+    const current = query.value.trim()
+    activeQuery.value = current
+    results.value = []
+    failed.value = false
+    loading.value = !!current
+    if (current) timer = setTimeout(() => { void runSearch(current, request) }, delay)
+  }
+
+  function routeQuery(scope: SearchScope, subject: SearchSubject | '') {
+    return { q: query.value.trim() || undefined, type: scope === 'all' ? undefined : scope, subject: subject || undefined }
   }
 
   function submit() {
-    const q = query.value.trim();
-    if (q) router.replace({ name: "search", query: { q } });
+    const { scope, subject } = filters.value
+    void router.replace({ name: 'search', query: routeQuery(scope, subject) })
+    queueSearch(0)
   }
 
-  function openResult(result: SearchResult) {
-    router.push(result.route);
+  function setFilters(scope: SearchScope, subject: SearchSubject | '') {
+    if (scope === filters.value.scope && subject === filters.value.subject) return
+    void router.replace({ name: 'search', query: routeQuery(scope, subject) })
   }
 
-  function goToPage(nextPage: number) {
-    if (nextPage < 1 || nextPage > totalPages.value) return;
-    page.value = nextPage;
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  watch(() => route.query.q, () => { query.value = queryFromRoute() })
+  watch([query, () => filters.value.scope, () => filters.value.subject], () => queueSearch(160), { immediate: true })
+
+  function selectQuery(value: string) {
+    query.value = value
+    submit()
   }
 
-  let initialized = false;
-  onMounted(() => {
-    const initialQuery = String(route.query.q || "").trim();
-    if (!initialQuery) {
-      initialized = true;
-      return;
+  async function saveQueryBeforeLeaving() {
+    const current = query.value.trim()
+    if (current !== queryFromRoute()) {
+      await router.replace({ name: 'search', query: routeQuery(filters.value.scope, filters.value.subject) })
     }
-    query.value = initialQuery;
-    runInitialSearch(initialQuery).finally(() => {
-      initialized = true;
-    });
-  });
+  }
 
-  watch(query, () => {
-    if (initialized) void runLiveSearch();
-  });
+  onBeforeUnmount(() => {
+    clearTimeout(timer)
+    sequence++
+  })
 
-  watch(
-    () => route.query.q,
-    (newQuery) => {
-      if (typeof newQuery === "string" && newQuery !== query.value)
-        query.value = newQuery;
-    },
-  );
-
-  onBeforeUnmount(dispose);
-
-  return {
-    loading,
-    page,
-    pageSize: PAGE_SIZE,
-    pagedResults,
-    query,
-    submit,
-    total,
-    totalPages,
-    goToPage,
-    openResult,
-  };
+  return { query, activeQuery, filters, failed, loading, results, submit, setFilters, selectQuery, saveQueryBeforeLeaving }
 }

@@ -194,12 +194,15 @@ function buildSynonymLookup(groups: string[][]): Map<string, string[]> {
 /** 并行加载轻量元数据、同义词、分词器和预生成索引；全局只执行一次。 */
 export async function ensureCorpusLoaded(): Promise<LoadedCorpus> {
   if (corpusPromise) return corpusPromise
-  corpusPromise = (async () => {
-    const [corpusJson, sectionIndexJson, fragmentIndexJson, synonymsJson, segment]: [SearchCorpus, string, string, string[][], ((i: string) => string[]) | undefined] = await Promise.all([
-      fetch(withBase('/search/search-index.json')).then((r) => r.json()),
-      fetch(withBase('/search/minisearch-index.json')).then((r) => r.text()),
-      fetch(withBase('/search/minisearch-fragment-index.json')).then((r) => r.text()),
-      fetch(withBase('/search/synonyms.json')).then((r) => r.json()),
+  const pending = (async () => {
+    const hasPersonalKnowledge = workspace.books !== null || Object.keys(workspace.articles).length > 0
+    const [corpusJson, preparedIndexes, synonymsJson, segment] = await Promise.all([
+      fetch(withBase('/search/search-index.json')).then((r) => r.json() as Promise<SearchCorpus>),
+      hasPersonalKnowledge ? null : Promise.all([
+        fetch(withBase('/search/minisearch-index.json')).then((r) => r.text()),
+        fetch(withBase('/search/minisearch-fragment-index.json')).then((r) => r.text()),
+      ]),
+      fetch(withBase('/search/synonyms.json')).then((r) => r.json() as Promise<string[][]>),
       loadSegmentit(),
     ])
 
@@ -208,9 +211,12 @@ export async function ensureCorpusLoaded(): Promise<LoadedCorpus> {
       examYearNumberMap.set(`${exam.year}-${exam.number}`, exam)
     }
 
-    let sectionIndex = MiniSearch.loadJSON<SearchKnowledgeSectionDoc>(sectionIndexJson, sectionIndexOptions(segment))
-    let fragmentIndex = MiniSearch.loadJSON<SearchKnowledgeFragmentDoc>(fragmentIndexJson, fragmentIndexOptions(segment))
-    if (workspace.books !== null || Object.keys(workspace.articles).length) {
+    let sectionIndex: MiniSearch<SearchKnowledgeSectionDoc>
+    let fragmentIndex: MiniSearch<SearchKnowledgeFragmentDoc>
+    if (preparedIndexes) {
+      sectionIndex = MiniSearch.loadJSON<SearchKnowledgeSectionDoc>(preparedIndexes[0], sectionIndexOptions(segment))
+      fragmentIndex = MiniSearch.loadJSON<SearchKnowledgeFragmentDoc>(preparedIndexes[1], fragmentIndexOptions(segment))
+    } else {
       const [{ knowledgeBooks }, { loadBookContent }] = await Promise.all([import('@/content/knowledge-tree'), import('@/content/knowledge-articles/registry')])
       const docs: SearchKnowledgeSectionDoc[] = []; const fragments: SearchKnowledgeFragmentDoc[] = []
       for (const book of knowledgeBooks) {
@@ -242,19 +248,18 @@ export async function ensureCorpusLoaded(): Promise<LoadedCorpus> {
     }
     return { sectionIndex, fragmentIndex, synonyms: buildSynonymLookup(synonymsJson), examYearNumberMap }
   })()
+  corpusPromise = pending
   try {
-    return await corpusPromise
+    return await pending
   } catch (error) {
-    corpusPromise = null
+    if (corpusPromise === pending) corpusPromise = null
     throw error
   }
 }
 
 /** 页面空闲或搜索框获得焦点时预热；失败不影响页面，真正搜索时仍会重试加载。 */
 export function warmSearch(): void {
-  void ensureCorpusLoaded().catch(() => {
-    corpusPromise = null
-  })
+  void ensureCorpusLoaded().catch(() => {})
 }
 
 /* ========================================================================== *
@@ -319,10 +324,8 @@ function extractHighlightTerms(rawQuery: string): string[] {
   }
   for (const m of text.matchAll(CJK_RE)) {
     const seg = m[0]
-    if (seg.length >= 2) {
-      terms.add(seg)
-      for (let i = 0; i < seg.length - 1; i++) terms.add(seg.slice(i, i + 2))
-    }
+    terms.add(seg)
+    for (let i = 0; i < seg.length - 1; i++) terms.add(seg.slice(i, i + 2))
   }
   return Array.from(terms)
 }
@@ -336,14 +339,15 @@ export function highlightText(text: string, rawQuery: string): string {
   if (!text) return ''
   const terms = extractHighlightTerms(rawQuery)
   if (!terms.length) return escapeHtml(text)
-  const sorted = terms.sort((a, b) => b.length - a.length)
-  let result = escapeHtml(text)
-  for (const term of sorted) {
-    const patternSource = escapeRegExp(escapeHtml(term)).replace(/io/gi, 'i[/]?o')
-    result = result.replace(
-      new RegExp(`(?!<mark[^>]*>)([^<]*?)(${patternSource})([^<]*?)(?![^<]*</mark>)`, 'ig'),
-      '$1<mark>$2</mark>$3',
-    )
+  const pattern = new RegExp(terms.sort((a, b) => b.length - a.length)
+    .map((term) => escapeRegExp(term).replace(/io/gi, 'i(?:\\s*/\\s*)?o'))
+    .join('|'), 'ig')
+  let result = ''
+  let end = 0
+  for (const match of text.matchAll(pattern)) {
+    const start = match.index
+    result += escapeHtml(text.slice(end, start)) + '<mark>' + escapeHtml(match[0]) + '</mark>'
+    end = start + match[0].length
   }
-  return result
+  return result + escapeHtml(text.slice(end))
 }
