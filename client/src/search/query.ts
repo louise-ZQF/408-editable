@@ -18,8 +18,20 @@ export function normalizeSearch(text: string): string {
   return normalizeIo(text.normalize('NFKC')).trim().toLowerCase().replace(/\s+/g, ' ')
 }
 
+const mixedScriptBoundary = /(?<=[a-z0-9])\s*(?=\p{Script=Han})|(?<=\p{Script=Han})\s*(?=[a-z0-9])/gu
+
+export function searchTopic(query: string): string {
+  const text = normalizeSearch(query)
+  const topic = text
+    .replace(/[?]+$/, '')
+    .trim()
+    .replace(/^(?:怎么[求算]|如何(?:求|计算)|求(?=[a-z0-9\s]))\s*/u, '')
+    .replace(/\s*(?:怎么算|怎么求|如何计算|怎么计算)$/u, '')
+  return (topic || text).replace(mixedScriptBoundary, ' ')
+}
+
 export function phrasePattern(phrase: string): RegExp {
-  const escaped = escapeRegExp(phrase)
+  const escaped = phrase.split(mixedScriptBoundary).map(escapeRegExp).join('\\s*')
   return new RegExp(/^[a-z0-9]+$/.test(phrase)
     ? `(^|[^a-z0-9])${escaped}(?=$|[^a-z0-9])`
     : escaped)

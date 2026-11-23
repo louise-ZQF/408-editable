@@ -11,7 +11,7 @@ import type {
 } from "@/search/types";
 import type { LoadedCorpus } from "@/search/shared";
 import { extractSnippet, normalizeIo } from "@/search/shared";
-import { normalizeSearch, phrasePattern, plainSearchText, searchPhrases } from "@/search/query";
+import { normalizeSearch, phrasePattern, plainSearchText, searchPhrases, searchTopic } from "@/search/query";
 
 function asciiWordMatch(text: string, word: string): boolean {
   const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -89,7 +89,8 @@ export function searchKnowledge(
   topK: number,
   bookIds?: ReadonlySet<string>,
 ): SearchResult[] {
-  const expandedQuery = expandWithSynonyms(query, loaded.synonyms);
+  const topic = searchTopic(query);
+  const expandedQuery = expandWithSynonyms(topic, loaded.synonyms);
   const filter = (hit: MiniSearchResult) => !bookIds || bookIds.has(hit.bookId);
   const options = {
     filter,
@@ -100,9 +101,9 @@ export function searchKnowledge(
       body: 1,
     },
   };
-  const terms = searchPhrases(query, loaded.synonyms);
+  const terms = searchPhrases(topic, loaded.synonyms);
   const patterns = terms.map(phrasePattern);
-  const allWordHits = loaded.sectionIndex.search(normalizeSearch(query), { ...options, combineWith: "AND" });
+  const allWordHits = loaded.sectionIndex.search(topic, { ...options, combineWith: "AND" });
   const hits = (allWordHits.length ? allWordHits : loaded.sectionIndex.search(expandedQuery, {
     ...options,
     combineWith: "OR",

@@ -1,5 +1,5 @@
 import { extractSnippet } from '@/search/shared'
-import { normalizeSearch, phrasePattern, plainSearchText, searchPhrases, SEARCH_SUBJECTS, type SearchSubject } from '@/search/query'
+import { normalizeSearch, phrasePattern, plainSearchText, searchPhrases, searchTopic, SEARCH_SUBJECTS, type SearchSubject } from '@/search/query'
 import type { LoadedCorpus } from '@/search/shared'
 import type { SearchExamItem, SearchResult } from '@/search/types'
 
@@ -40,8 +40,9 @@ export function searchExam(
 
   const normalized = normalizeSearch(query)
   const year = /^20\d{2}年?$/.test(normalized) ? Number(normalized.slice(0, 4)) : 0
-  const phrases = searchPhrases(query, loaded.synonyms).map(phrasePattern)
-  const words = (normalized.match(/[\p{Script=Han}]+|[a-z0-9]+/gu) ?? []).map((word) =>
+  const topicQuery = searchTopic(query)
+  const phrases = searchPhrases(topicQuery, loaded.synonyms).map(phrasePattern)
+  const words = (topicQuery.match(/[\p{Script=Han}]+|[a-z0-9]+/gu) ?? []).map((word) =>
     searchPhrases(word, loaded.synonyms).map(phrasePattern),
   )
   if (!words.length) return []
@@ -69,5 +70,5 @@ export function searchExam(
   return matches
     .sort((a, b) => b.score - a.score || b.exam.year - a.exam.year || a.exam.number - b.exam.number)
     .slice(0, limit)
-    .map(({ exam }) => toResult(exam, query))
+    .map(({ exam }) => toResult(exam, topicQuery))
 }
