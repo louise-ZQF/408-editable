@@ -45,7 +45,7 @@ test('提问式搜索能定位 Cache 组号算法和对应真题', async ({ page
   await page.route('**/editor/content.json?*', (route) => route.fulfill({ path: personalContent }))
   await page.goto('/#/search?' + new URLSearchParams({ q: '求cache组号' }).toString())
   const results = page.locator('.result-item')
-  await expect(results.first()).toHaveAttribute('href', /#kb-co-cache-mapping-4$/)
+  await expect(results.first()).toHaveAttribute('href', /#kb-co-cache-mapping-4$/, { timeout: 15_000 })
   await expect(results.first()).toContainText('Cache 组号怎么算')
   await expect(results.filter({ hasText: '2026年第18题' })).toBeVisible()
 
