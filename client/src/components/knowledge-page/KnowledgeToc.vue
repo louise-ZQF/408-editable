@@ -17,17 +17,22 @@ export type KnowledgeTocEntry = {
 
 const props = defineProps<{
   entries: KnowledgeTocEntry[];
+  open: boolean;
 }>();
+
+const emit = defineEmits<{ navigate: [] }>();
 
 const activeId = ref("");
 const pendingNavigationId = ref("");
 const tocElement = ref<HTMLElement | null>(null);
 let observedSections: HTMLElement[] = [];
+let sectionPositions: number[] = [];
+let positionsDirty = true;
 let resizeObserver: ResizeObserver | undefined;
 let navigationUnlockTimer: number | undefined;
 let updateFrame: number | undefined;
 
-const READING_LINE_RATIO = 0.42;
+const reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 const observedIds = computed(() =>
   props.entries.flatMap((entry) => [
@@ -44,9 +49,12 @@ function scrollToSection(id: string) {
   pendingNavigationId.value = id;
   const targetTop =
     window.scrollY + target.getBoundingClientRect().top - getReadingLine();
-  window.scrollTo({ top: Math.max(0, targetTop), behavior: "smooth" });
+  const instant = reducedMotion() || Math.abs(targetTop - window.scrollY) < 2;
+  window.scrollTo({ top: Math.max(0, targetTop), behavior: instant ? "instant" : "smooth" });
   window.clearTimeout(navigationUnlockTimer);
-  navigationUnlockTimer = window.setTimeout(releaseNavigationLock, 1200);
+  if (instant) releaseNavigationLock();
+  else navigationUnlockTimer = window.setTimeout(releaseNavigationLock, 750);
+  emit("navigate");
 }
 
 function releaseNavigationLock() {
@@ -71,24 +79,21 @@ async function observeSections() {
     .map((id) => document.getElementById(id))
     .filter((section): section is HTMLElement => Boolean(section));
 
-  if (!observedSections.length) return;
-
-  activeId.value = observedSections[0].id;
-  resizeObserver = new ResizeObserver(scheduleActiveUpdate);
+  activeId.value = observedSections[0]?.id ?? "";
+  resizeObserver = new ResizeObserver(invalidatePositions);
   observedSections.forEach((section) => resizeObserver?.observe(section));
-  scheduleActiveUpdate();
+  const column = document.querySelector('[data-testid="knowledge-article-column"]');
+  if (column) resizeObserver.observe(column);
+  invalidatePositions();
 }
 
 function getReadingLine() {
-  return Math.min(
-    window.innerHeight - 120,
-    Math.max(160, window.innerHeight * READING_LINE_RATIO),
-  );
+  return Math.max(90, Math.min(200, window.innerHeight * 0.22));
 }
 
 function updateActiveSection() {
   updateFrame = undefined;
-  if (pendingNavigationId.value || !observedSections.length) return;
+  if (!props.open || pendingNavigationId.value || !observedSections.length) return;
 
   const pageBottom = window.scrollY + window.innerHeight;
   const scrollHeight = document.documentElement.scrollHeight;
@@ -97,19 +102,24 @@ function updateActiveSection() {
     return;
   }
 
-  const readingLine = getReadingLine();
-  let current = observedSections[0];
-  for (const section of observedSections) {
-    // 给平滑滚动后的亚像素取整留出余量，避免目标刚好落在判定线时又高亮上一项。
-    if (section.getBoundingClientRect().top > readingLine + 2) break;
-    current = section;
+  const scrollY = window.scrollY;
+  if (positionsDirty) {
+    sectionPositions = observedSections.map((section) => scrollY + section.getBoundingClientRect().top);
+    positionsDirty = false;
   }
+  const readingPosition = scrollY + getReadingLine() + 2;
+  let index = 0;
+  while (index + 1 < sectionPositions.length && sectionPositions[index + 1] <= readingPosition) index++;
+  activeId.value = observedSections[index].id;
+}
 
-  activeId.value = current.id;
+function invalidatePositions() {
+  positionsDirty = true;
+  scheduleActiveUpdate();
 }
 
 function scheduleActiveUpdate() {
-  if (updateFrame !== undefined) return;
+  if (!props.open || updateFrame !== undefined) return;
   updateFrame = window.requestAnimationFrame(updateActiveSection);
 }
 
@@ -123,34 +133,44 @@ async function keepActiveItemVisible() {
 
   const containerRect = container.getBoundingClientRect();
   const activeRect = activeLink.getBoundingClientRect();
-  const visibleTop = containerRect.top + 64;
+  const visibleTop = containerRect.top + 8;
   const visibleBottom = containerRect.bottom - 16;
 
   if (activeRect.top < visibleTop) {
     container.scrollBy({
       top: activeRect.top - visibleTop,
-      behavior: "smooth",
+      behavior: reducedMotion() ? "instant" : "smooth",
     });
   } else if (activeRect.bottom > visibleBottom) {
     container.scrollBy({
       top: activeRect.bottom - visibleBottom,
-      behavior: "smooth",
+      behavior: reducedMotion() ? "instant" : "smooth",
     });
   }
 }
 
 watch(() => props.entries, observeSections);
 watch(activeId, keepActiveItemVisible);
+watch(() => props.open, (open) => {
+  if (open) {
+    scheduleActiveUpdate();
+    void keepActiveItemVisible();
+  }
+});
 onMounted(() => {
   void observeSections();
   window.addEventListener("scroll", scheduleActiveUpdate, { passive: true });
-  window.addEventListener("resize", scheduleActiveUpdate);
+  window.addEventListener("resize", invalidatePositions);
+  window.addEventListener("wheel", releaseNavigationLock, { passive: true });
+  window.addEventListener("touchstart", releaseNavigationLock, { passive: true });
   window.addEventListener("scrollend", releaseNavigationLock);
 });
 onBeforeUnmount(() => {
   resizeObserver?.disconnect();
   window.removeEventListener("scroll", scheduleActiveUpdate);
-  window.removeEventListener("resize", scheduleActiveUpdate);
+  window.removeEventListener("resize", invalidatePositions);
+  window.removeEventListener("wheel", releaseNavigationLock);
+  window.removeEventListener("touchstart", releaseNavigationLock);
   window.removeEventListener("scrollend", releaseNavigationLock);
   window.clearTimeout(navigationUnlockTimer);
   if (updateFrame !== undefined) window.cancelAnimationFrame(updateFrame);
@@ -158,12 +178,13 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <aside
+  <nav
     ref="tocElement"
+    aria-label="本节内容"
     data-testid="knowledge-toc"
-    class="h-full overflow-y-auto px-5 pb-10 pt-6"
+    class="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-24 pt-4"
   >
-    <ol class="m-0 list-none space-y-7 p-0">
+    <ol class="m-0 list-none space-y-5 p-0">
       <li v-for="entry in entries" :key="entry.id">
         <a
           :href="`#article-${entry.id}`"
@@ -171,7 +192,7 @@ onBeforeUnmount(() => {
           :aria-current="
             activeId === `article-${entry.id}` ? 'location' : undefined
           "
-          class="block origin-left text-[14px] font-semibold leading-6 tracking-[-.01em] transition duration-200 hover:scale-[1.055]"
+          class="block rounded-lg py-2 text-[14px] font-semibold leading-6 transition-colors hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-[#315bb3]"
           :class="
             entryIsActive(entry)
               ? 'text-[#12327f]'
@@ -190,10 +211,10 @@ onBeforeUnmount(() => {
               :href="`#${subpoint.id}`"
               :data-toc-id="subpoint.id"
               :aria-current="activeId === subpoint.id ? 'location' : undefined"
-              class="-ml-px block origin-left border-l-2 py-1.5 pl-3 text-[13px] leading-5 transition duration-200 hover:scale-[1.055]"
+              class="-ml-px block rounded-r-lg border-l-2 py-2 pl-3 pr-2 text-[13px] leading-5 transition-colors hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-[#315bb3]"
               :class="
                 activeId === subpoint.id
-                  ? 'border-[#12327f] bg-[#f2f6ff] font-semibold text-[#12327f]'
+                  ? 'border-[#3f67c0] bg-[#eff5ff] font-semibold text-[#214ca4]'
                   : 'border-transparent text-slate-500 hover:border-slate-300 hover:text-[#071225]'
               "
               @click.prevent="scrollToSection(subpoint.id)"
@@ -204,5 +225,5 @@ onBeforeUnmount(() => {
         </ol>
       </li>
     </ol>
-  </aside>
+  </nav>
 </template>

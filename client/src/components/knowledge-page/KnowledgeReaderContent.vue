@@ -23,11 +23,11 @@ const emit = defineEmits<{ page: [page: number] }>();
 
 <template>
   <main
-    class="min-w-0 px-[clamp(12px,3vw,46px)] pb-24 pt-[clamp(12px,3vw,38px)] transition-[padding] duration-500 ease-[cubic-bezier(.22,1,.36,1)]"
+    class="min-w-0 px-[clamp(18px,4vw,52px)] pb-24 pt-[clamp(25px,4vw,52px)]"
   >
-    <div class="mx-auto max-w-[1180px]">
+    <div class="mx-auto max-w-[900px]">
       <div
-        class="mx-auto min-h-[calc(100vh-32px)] max-w-[1180px] border border-[#d9e1eb] bg-white px-[clamp(24px,5vw,76px)] pb-24 pt-[clamp(34px,5vw,66px)] shadow-[0_24px_80px_rgba(25,39,61,.07)] max-sm:px-5"
+        class="min-h-[min(68vh,620px)] min-w-0 bg-white"
       >
         <div
           v-if="error"
@@ -37,10 +37,10 @@ const emit = defineEmits<{ page: [page: number] }>();
         </div>
         <template v-else-if="section">
           <header
-            class="mb-7 flex flex-wrap items-baseline gap-x-4 gap-y-1 border-b border-[#dce3ec] pb-4 sm:mb-10 sm:pb-7"
+            class="mb-6 flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-[#e6ecf4] pb-4 sm:mb-8 sm:gap-x-4 sm:pb-6"
           >
             <h1
-              class="m-0 text-[clamp(1.7rem,3vw,2.25rem)] font-semibold leading-tight tracking-[-.045em] text-[#071225]"
+              class="m-0 min-w-0 text-[clamp(1.85rem,4vw,2.6rem)] font-bold leading-tight tracking-[-.038em] text-[#101a2d]"
             >
               <InlineTitle :title="section.title" :node-id="section.id" />
             </h1>
@@ -50,7 +50,7 @@ const emit = defineEmits<{ page: [page: number] }>();
                 name: 'exams',
                 query: { knowledgeBlockIds: sectionExam.blockIds.join(',') },
               }"
-              class="group mt-3 inline-flex items-baseline gap-1.5 border-b border-[#8ea7d9] pb-0.5 text-[13px] font-semibold tracking-wide text-[#31559e] transition-colors hover:border-[#12327f] hover:text-[#12327f]"
+              class="group inline-flex min-h-9 items-center gap-1.5 rounded-lg bg-[#eef4fd] px-2.5 text-[12px] font-semibold text-[#2e5596] transition-colors hover:bg-[#e4edf9]"
             >
               <span class="font-bold text-[#12327f]">{{
                 sectionExam.examCount
@@ -64,30 +64,27 @@ const emit = defineEmits<{ page: [page: number] }>();
             </RouterLink>
             <RouterLink
               :to="{ name: 'search' }"
-              class="ml-auto inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-lg px-2 text-sm font-semibold text-[#31559e] hover:bg-[#eef4ff] focus-visible:outline-2 focus-visible:outline-[#2855bf]"
+              aria-label="全站搜索"
+              class="ml-auto inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center gap-1.5 rounded-lg px-2.5 text-[13px] font-semibold text-[#31559e] transition-colors hover:bg-[#eef4ff] focus-visible:outline-2 focus-visible:outline-[#2855bf]"
             >
               <Search class="h-4 w-4" aria-hidden="true" />
-              全站搜索
+              <span class="hidden sm:inline">全站搜索</span>
             </RouterLink>
           </header>
 
           <div data-testid="knowledge-article-column" class="min-w-0">
             <section
-              v-for="(entry, index) in articleEntries"
+              v-for="entry in articleEntries"
               :key="entry.point.id"
-              class="border-t border-[#dce3ec] py-16 first:border-t-0 first:pt-0"
+              class="min-w-0 border-t border-[#e6ecf4] py-10 first:border-t-0 first:pt-0 sm:py-12"
             >
               <header
                 :id="`article-${entry.point.id}`"
-                class="mb-10 scroll-mt-16"
+                class="mb-7 scroll-mt-24 sm:mb-8"
               >
                 <h2
-                  class="m-0 text-[clamp(2.15rem,4vw,3.1rem)] font-semibold leading-tight tracking-[-.055em] text-[#071225]"
+                  class="m-0 text-[clamp(1.4rem,2.65vw,2rem)] font-semibold leading-tight tracking-[-.027em] text-[#101a2d]"
                 >
-                  <span
-                    class="mb-2 block font-mono text-[.34em] font-bold tracking-[.16em] text-[#31559e]"
-                    >ARTICLE {{ String(index + 1).padStart(2, "0") }}</span
-                  >
                   <InlineTitle :title="entry.point.title" :node-id="entry.point.id" />
                 </h2>
               </header>
@@ -101,7 +98,7 @@ const emit = defineEmits<{ page: [page: number] }>();
           </div>
         </template>
         <div v-else-if="!loading" class="personal-empty-reader"><div><p class="mb-5">当前教材还没有页面，你可以从内容管理中添加。</p><button @click="openEditor()">打开内容管理</button></div></div>
-        <div v-else-if="loading" class="py-24 text-center text-sm text-slate-500">
+        <div v-else-if="loading" role="status" class="py-24 text-center text-sm text-slate-600">
           知识内容正在加载…
         </div>
       </div>

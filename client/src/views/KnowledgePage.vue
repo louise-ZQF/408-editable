@@ -10,11 +10,13 @@ const reader = useKnowledgeReader()
 
 <template>
   <ReaderDrawerLayout
-    class="bg-[#e9eef5]"
+    left-label="书籍目录"
+    right-label="本节目录"
+    :context-label="reader.book.value?.title"
     :left-width="304"
     :right-width="270"
   >
-    <template #left="{ open, pinned, hover, pin }">
+    <template #left="{ open, pinned, compact, hover, pin, closeOnSelect }">
       <KnowledgeLibraryDrawer
         :active-section-id="reader.activeSectionId.value"
         :book="reader.book.value"
@@ -22,10 +24,11 @@ const reader = useKnowledgeReader()
         :books="reader.books"
         :open="open"
         :pinned="pinned"
+        :compact="compact"
         @hover="hover"
         @pin="pin"
         @select-book="reader.selectBook"
-        @select-section="reader.selectSection"
+        @select-section="reader.selectSection($event); closeOnSelect()"
       />
     </template>
 
@@ -40,14 +43,16 @@ const reader = useKnowledgeReader()
       @page="reader.changePage"
     />
 
-    <template #right="{ open, pinned, hover, pin }">
+    <template #right="{ open, pinned, compact, hover, pin, closeOnSelect }">
       <KnowledgeTocDrawer
         :entries="reader.tocEntries.value"
         :open="open"
         :pinned="pinned"
+        :compact="compact"
         :visible="Boolean(reader.section.value)"
         @hover="hover"
         @pin="pin"
+        @navigate="closeOnSelect"
       />
     </template>
   </ReaderDrawerLayout>

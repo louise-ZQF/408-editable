@@ -7,7 +7,6 @@ import type {
   ExamFilters,
   ExamSubject,
 } from "@/types";
-import BrandLogo from "@/components/BrandLogo.vue";
 import ReaderDrawer from "@/components/ReaderDrawer.vue";
 import { warmSearch } from "@/search/shared";
 import type { ExamFilterPatch, ExamFilterSelection } from "./pageTypes";
@@ -18,6 +17,7 @@ const props = defineProps<{
   hasActiveFilters: boolean;
   open: boolean;
   pinned: boolean;
+  compact?: boolean;
   selection: ExamFilterSelection;
 }>();
 
@@ -118,16 +118,14 @@ watch(
 <template>
   <ReaderDrawer
     side="left"
-    :width="300"
     :open="open"
     :pinned="pinned"
-    surface-class="bg-[#f8fafc]"
-    trigger-label="悬停展开真题筛选"
+    :compact="compact ?? false"
     pin-label="真题筛选"
     @hover="emit('hover', $event)"
     @pin="emit('pin', $event)"
   >
-    <template #header><BrandLogo /></template>
+    <template #header><h2 class="m-0 text-[15px] font-semibold">真题筛选</h2></template>
 
     <section class="px-5 pb-5 pt-5">
       <label class="relative block" @pointerenter="warmSearch">
@@ -153,7 +151,7 @@ watch(
       </label>
     </section>
 
-    <div class="min-h-0 flex-1 overflow-y-auto px-3 pb-10 pt-3">
+    <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pb-24 pt-3">
       <section class="mb-1 px-3" aria-live="polite" aria-label="当前筛选">
         <p class="current-filter-summary__label">当前筛选</p>
         <p class="current-filter-summary__value">{{ currentFilterText }}</p>
@@ -229,7 +227,7 @@ watch(
         <div
           class="mb-2 px-3 font-mono text-[10px] font-bold tracking-[.15em] text-slate-400"
         >
-          BOOKS / 书本
+          按科目筛选
         </div>
         <ol class="m-0 list-none space-y-1 p-0">
           <li

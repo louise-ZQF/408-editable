@@ -3,7 +3,6 @@ import InlineNodeActions from '@/editor/InlineNodeActions.vue';
 import { computed, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import type { Book } from "@/types";
-import BrandLogo from "@/components/BrandLogo.vue";
 import ReaderDrawer from "@/components/ReaderDrawer.vue";
 import KnowledgeSidebar from "./KnowledgeSidebar.vue";
 import { warmSearch } from "@/search/shared";
@@ -28,6 +27,7 @@ const props = defineProps<{
   books: Book[];
   open: boolean;
   pinned: boolean;
+  compact: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -254,15 +254,14 @@ watch(
 <template>
   <ReaderDrawer
     side="left"
-    :width="304"
     :open="open"
     :pinned="pinned"
-    trigger-label="悬停展开书籍目录"
+    :compact="compact"
     pin-label="书籍目录"
     @hover="emit('hover', $event)"
     @pin="emit('pin', $event)"
   >
-    <template #header><BrandLogo /></template>
+    <template #header><h2 class="m-0 text-[15px] font-semibold">书籍目录</h2></template>
 
     <section class="shrink-0 border-b border-[#d8e0eb] px-5 pb-5 pt-5">
 

@@ -1,116 +1,46 @@
 <script setup lang="ts">
-import { computed } from "vue";
-import DoubleChevronIcon from "@/components/icons/DoubleChevronIcon.vue";
+import { Close } from '@element-plus/icons-vue'
 
-const props = withDefaults(
-  defineProps<{
-    open: boolean;
-    pinned: boolean;
-    side: "left" | "right";
-    width: number;
-    triggerLabel: string;
-    pinLabel: string;
-    surfaceClass?: string;
-    showHeader?: boolean;
-  }>(),
-  {
-    surfaceClass: "bg-[#f6f8fb]",
-    showHeader: true,
-  },
-);
+defineProps<{
+  open: boolean
+  pinned: boolean
+  compact: boolean
+  side: 'left' | 'right'
+  pinLabel: string
+}>()
 
 const emit = defineEmits<{
-  hover: [value: boolean];
-  pin: [value: boolean];
-}>();
-
-const isLeft = computed(() => props.side === "left");
-const drawerStyle = computed(() => ({
-  "--reader-drawer-width": `${props.width}px`,
-}));
-
-function handlePointerHover(event: PointerEvent, value: boolean) {
-  if (event.pointerType !== "mouse") return;
-  emit("hover", value);
-}
+  hover: [value: boolean]
+  pin: [value: boolean]
+}>()
 </script>
 
 <template>
-  <div
-    class="reader-drawer-trigger fixed inset-y-0 z-50 w-7"
-    :class="isLeft ? 'left-0 cursor-e-resize' : 'right-0 cursor-w-resize'"
-    :aria-label="triggerLabel"
-    @pointerenter="handlePointerHover($event, true)"
-    @click="emit('pin', true)"
-  >
-    <span
-      v-if="!open"
-      class="absolute top-1/2 grid h-20 w-6 -translate-y-1/2 place-items-center border border-[#cbd5e1] bg-white/95 text-[#31559e] shadow-lg backdrop-blur"
-      :class="
-        isLeft
-          ? 'left-0 rounded-r-sm border-l-0'
-          : 'right-0 rounded-l-sm border-r-0'
-      "
-    >
-      <DoubleChevronIcon
-        class="h-4 w-4"
-        :class="isLeft ? '' : 'rotate-180'"
-      />
-    </span>
-  </div>
-
   <aside
-    class="reader-drawer sticky top-0 z-30 flex h-screen min-w-0 flex-col overflow-hidden border-[#d3dce8] transition-[opacity,transform] duration-300"
-    :class="[
-      surfaceClass,
-      isLeft ? 'border-r' : 'border-l',
-      open
-        ? 'translate-x-0 opacity-100'
-        : [
-            'pointer-events-none opacity-0',
-            isLeft ? 'max-lg:-translate-x-full' : 'max-lg:translate-x-full',
-          ],
-    ]"
-    :style="drawerStyle"
-    @pointerenter="handlePointerHover($event, true)"
-    @pointerleave="handlePointerHover($event, false)"
+    :id="`reader-drawer-${side}`"
+    :data-reader-drawer="side"
+    :aria-label="pinLabel"
+    :aria-hidden="!open || undefined"
+    :inert="!open"
+    class="reader-drawer"
+    :class="[`reader-drawer--${side}`, { 'is-open': open, 'is-pinned': pinned }]"
+    @pointerenter="$event.pointerType === 'mouse' && emit('hover', true)"
+    @pointerleave="$event.pointerType === 'mouse' && emit('hover', false)"
   >
-    <header
-      v-if="showHeader"
-      class="flex shrink-0 items-center justify-between gap-3 border-b border-[#d8e0eb] px-5 py-5"
-    >
+    <header class="flex min-h-[64px] shrink-0 items-center justify-between gap-2 border-b border-[#e8edf4] px-4 py-2">
       <slot name="header" />
       <button
         type="button"
-        class="grid h-9 w-9 shrink-0 place-items-center border transition"
-        :class="
-          pinned
-            ? 'border-[#12327f] bg-[#12327f] text-white'
-            : 'border-[#cbd5e1] bg-white text-slate-500 hover:border-[#12327f] hover:text-[#12327f]'
-        "
-        :aria-label="pinned ? `取消固定${pinLabel}` : `固定${pinLabel}`"
-        :title="pinned ? '取消固定' : `固定${pinLabel}`"
-        @click="emit('pin', !pinned)"
+        class="drawer-pin"
+        :aria-pressed="compact ? undefined : pinned"
+        :aria-label="compact ? `关闭${pinLabel}` : pinned ? `取消固定${pinLabel}` : `固定${pinLabel}`"
+        :title="compact ? `关闭${pinLabel}` : pinned ? '取消固定' : `固定${pinLabel}`"
+        @click="emit('pin', !compact && !pinned)"
       >
-        <svg
-          class="reader-drawer-pin-icon h-4 w-4 transition-transform"
-          :class="pinned ? '-rotate-45' : ''"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.8"
-          aria-hidden="true"
-        >
-          <path
-            d="M12 17v5M7 3h10M8 3l1 7-3 4h12l-3-4 1-7"
-            stroke-linecap="square"
-            stroke-linejoin="miter"
-          />
+        <Close v-if="compact" class="size-[17px]" aria-hidden="true" />
+        <svg v-else class="size-[17px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+          <path d="M12 17v5M7 3h10M8 3l1 7-3 4h12l-3-4 1-7" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
-        <DoubleChevronIcon
-          class="reader-drawer-close-icon hidden h-4 w-4"
-          :class="isLeft ? 'rotate-180' : ''"
-        />
       </button>
     </header>
 
@@ -119,31 +49,49 @@ function handlePointerHover(event: PointerEvent, value: boolean) {
 </template>
 
 <style scoped>
-@media (hover: none), (pointer: coarse) {
-  .reader-drawer-pin-icon {
-    display: none;
-  }
-
-  .reader-drawer-close-icon {
-    display: block;
-  }
+.reader-drawer {
+  position: fixed;
+  inset-block: var(--reader-toolbar-height) 0;
+  z-index: 45;
+  display: flex;
+  flex-direction: column;
+  width: min(var(--drawer-width), 88vw);
+  overflow: hidden;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateX(var(--drawer-offset));
+  background: #fff;
+  transition: transform 230ms cubic-bezier(.2,.75,.25,1), visibility 0s linear 230ms;
 }
-
-@media (max-width: 639px) {
-  .reader-drawer {
-    position: fixed;
-    inset-block: 0;
-    width: min(var(--reader-drawer-width), 88vw);
-  }
-
-  .reader-drawer.border-r {
-    left: 0;
-    box-shadow: 20px 0 70px rgba(15, 23, 42, 0.18);
-  }
-
-  .reader-drawer.border-l {
-    right: 0;
-    box-shadow: -20px 0 70px rgba(15, 23, 42, 0.18);
-  }
+.reader-drawer--left {
+  --drawer-width: var(--reader-left-width);
+  --drawer-offset: -101%;
+  left: 0;
+  border-right: 1px solid #e5eaf1;
 }
+.reader-drawer--right {
+  --drawer-width: var(--reader-right-width);
+  --drawer-offset: 101%;
+  right: 0;
+  border-left: 1px solid #e5eaf1;
+}
+.reader-drawer.is-open {
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateX(0);
+  transition-delay: 0s;
+}
+.reader-drawer.is-open:not(.is-pinned) { box-shadow: 0 14px 40px #18264c19; }
+.drawer-pin {
+  display: grid;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border-radius: 9px;
+  color: #526174;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+.drawer-pin:hover, .drawer-pin[aria-pressed='true'] { color: #214ca4; background: #edf3ff; }
+.drawer-pin:focus-visible { outline: 2px solid #315bb3; outline-offset: 2px; }
 </style>

@@ -15,7 +15,7 @@ async function openResult(result: SearchResult) {
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#f7f9fc] text-[#122748]">
+  <div class="min-h-screen bg-white text-[#122748]">
     <SearchPageHeader v-model="query" @submit="submit" />
     <SearchResultsPanel
       :loading="loading"

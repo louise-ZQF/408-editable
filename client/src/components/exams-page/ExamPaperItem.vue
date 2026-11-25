@@ -214,7 +214,7 @@ onBeforeUnmount(() => {
         class="exam-flip-card__face exam-flip-card__front"
         aria-label="题目面"
       >
-        <span class="sticky top-0 bg-white flex min-w-0 items-center gap-2 pt-1">
+        <span class="sticky top-[var(--reader-toolbar-height,0px)] bg-white flex min-w-0 items-center gap-2 pt-1">
           <b
             class="shrink-0 select-none font-mono text-[15px] font-semibold leading-7 tracking-[-.02em] text-[#12327f]"
             >{{ exam.year }}.{{ exam.number }}</b
@@ -300,7 +300,7 @@ onBeforeUnmount(() => {
     :id="`exam-${exam.id}`"
     class="group relative scroll-mt-24 border-t border-[#e1e6ed] py-7 first:border-t-0 first:pt-8"
   >
-    <span class="sticky top-0 bg-white flex justify-between min-w-0 items-center gap-2 pt-1">
+    <span class="sticky top-[var(--reader-toolbar-height,0px)] bg-white flex justify-between min-w-0 items-center gap-2 pt-1">
       <b
         class="shrink-0 select-none font-mono text-[15px] font-semibold leading-7 tracking-[-.02em] text-[#12327f]"
         >{{ exam.year }}.{{ exam.number }}</b

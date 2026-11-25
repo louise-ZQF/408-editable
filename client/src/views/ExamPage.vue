@@ -10,17 +10,20 @@ const examPage = useExamPage()
 
 <template>
   <ReaderDrawerLayout
-    class="bg-[#edf1f6] text-[#071225]"
+    left-label="真题筛选"
+    right-label="题目目录"
+    context-label="历年真题"
     :left-width="300"
     :right-width="244"
   >
-    <template #left="{ open, pinned, hover, pin }">
+    <template #left="{ open, pinned, compact, hover, pin }">
       <ExamFilterDrawer
         :current-filter-text="examPage.currentFilterText.value"
         :filters="examPage.filters.value"
         :has-active-filters="examPage.hasActiveFilters.value"
         :open="open"
         :pinned="pinned"
+        :compact="compact"
         :selection="examPage.selection"
         @hover="hover"
         @pin="pin"
@@ -39,16 +42,17 @@ const examPage = useExamPage()
       @page="examPage.changePage"
     />
 
-    <template #right="{ open, pinned, hover, pin }">
+    <template #right="{ open, pinned, compact, hover, pin, closeOnSelect }">
       <ExamTocDrawer
         :active-exam-id="examPage.activeExamId.value"
         :current-filter-text="examPage.currentFilterText.value"
         :exams="examPage.exams.value"
         :open="open"
         :pinned="pinned"
+        :compact="compact"
         @hover="hover"
         @pin="pin"
-        @select="examPage.scrollToExam"
+        @select="examPage.scrollToExam($event); closeOnSelect()"
       />
     </template>
   </ReaderDrawerLayout>

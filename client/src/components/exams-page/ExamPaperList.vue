@@ -37,7 +37,7 @@ function changePage(page: number) {
 <template>
   <div class="min-w-0">
     <main
-      class="mx-auto max-w-[1200px] px-[clamp(12px,3vw,40px)] pb-24 pt-[clamp(12px,3vw,38px)]"
+      class="mx-auto max-w-[980px] px-[clamp(17px,4vw,48px)] pb-24 pt-[clamp(16px,3vw,38px)]"
     >
       <p
         v-if="error"
@@ -47,7 +47,7 @@ function changePage(page: number) {
       </p>
 
       <section
-        class="bg-white px-[clamp(22px,6vw,82px)] shadow-[0_22px_70px_rgba(25,39,61,.06)]"
+        class="min-w-0 bg-white"
       >
         <ExamPaperItem
           v-for="exam in exams"

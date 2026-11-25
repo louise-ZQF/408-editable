@@ -100,22 +100,22 @@ function renderInlineMath(text: string): string {
 </script>
 
 <template>
-  <article class="space-y-4">
+  <article class="min-w-0 space-y-5">
     <section
       v-for="(subpoint, index) in article.subpoints"
       :id="subpoint.id"
       :key="subpoint.id"
-      class="scroll-mt-28 border-t border-[#e1e6ed] pb-4 pt-10 first:border-t-0 first:pt-0"
+      class="min-w-0 scroll-mt-28 border-t border-[#e6ecf4] pb-4 pt-8 first:border-t-0 first:pt-0 sm:pt-10"
     >
-      <header class="mb-6 flex flex-wrap items-baseline gap-x-7 gap-y-3">
-        <h2
-          class="m-0 text-[clamp(1.55rem,2vw,1.9rem)] font-semibold leading-tight tracking-[-.035em] text-[#071225]"
+      <header class="mb-5 flex flex-wrap items-center gap-x-3 gap-y-1 sm:gap-x-5">
+        <h3
+          class="m-0 text-[clamp(1.15rem,2vw,1.45rem)] font-semibold leading-snug tracking-[-.023em] text-[#101a2d]"
         >
-          <span class="mr-3 font-mono text-[.62em] font-bold text-[#31559e]">{{
+          <span class="mr-2.5 align-[.12em] font-mono text-[.59em] font-semibold text-[#42628e]">{{
             String(index + 1).padStart(2, "0")
           }}</span
           ><InlineTitle v-if="editable" :title="subpoint.title" :node-id="subpoint.id" kind="subpoint" :point-id="article.pointId || ''" /><template v-else>{{ subpoint.title }}</template>
-        </h2>
+        </h3>
 
         <RouterLink
           v-if="subpointExamSummaries[subpoint.id]"
@@ -126,7 +126,7 @@ function renderInlineMath(text: string): string {
                 subpointExamSummaries[subpoint.id].blockIds.join(','),
             },
           }"
-          class="group inline-flex items-baseline gap-1.5 border-b border-[#8ea7d9] pb-0.5 text-[12px] font-semibold tracking-wide text-[#31559e] transition-colors hover:border-[#12327f] hover:text-[#12327f]"
+          class="group inline-flex min-h-9 items-center gap-1.5 rounded-lg px-1.5 text-[12px] font-semibold text-[#31559e] transition-colors hover:bg-[#edf3fd]"
         >
           <span class="font-bold text-[#12327f]">{{
             subpointExamSummaries[subpoint.id].examCount
@@ -141,12 +141,12 @@ function renderInlineMath(text: string): string {
         <button v-if="editable && inlineMode" class="inline-subpoint-delete" @click="inlineAction(() => deleteInlineSubpoint(article.pointId, subpoint.id))">删除小节</button>
       </header>
 
-      <div class="grid gap-7" :class="{ 'inline-drop-zone': editable && inlineMode }" :data-inline-drop-point="editable && inlineMode ? article.pointId : undefined" :data-inline-drop-subpoint="editable && inlineMode ? subpoint.id : undefined">
+      <div class="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-6 sm:gap-7" :class="{ 'inline-drop-zone': editable && inlineMode }" :data-inline-drop-point="editable && inlineMode ? article.pointId : undefined" :data-inline-drop-subpoint="editable && inlineMode ? subpoint.id : undefined">
         <section
           v-for="(block, blockIndex) in subpoint.blocks"
           :id="block.id"
           :key="block.id"
-          class="scroll-mt-28"
+          class="min-w-0 scroll-mt-28"
         >
           <InlineBlock :block="block" :point-id="article.pointId || ''" :subpoint-id="subpoint.id" :first="blockIndex === 0" :last="blockIndex === subpoint.blocks.length - 1" :enabled="editable">
           <KnowledgeMarkdown
@@ -156,13 +156,13 @@ function renderInlineMath(text: string): string {
 
           <div
             v-else-if="block.type === 'html'"
-            class="rich-content text-[19px] leading-[2] text-[#334155] [&_h2]:mb-4 [&_h2]:mt-9 [&_h2]:text-2xl [&_h2]:font-semibold [&_h2]:text-[#071225] [&_p]:my-5 [&_strong]:font-semibold [&_strong]:text-[#071225]"
+            class="rich-content max-w-full overflow-x-auto break-words text-[clamp(1rem,1.4vw,1.16rem)] leading-[1.88] text-[#2b394e] [&_h2]:mb-4 [&_h2]:mt-9 [&_h2]:text-2xl [&_h2]:font-semibold [&_h2]:text-[#071225] [&_p]:my-5 [&_strong]:font-semibold [&_strong]:text-[#071225]"
             v-html="renderRichHTML(block.html)"
           ></div>
 
           <figure
             v-else-if="block.type === 'image'"
-            class="m-0 border-y border-[#e1e6ed] bg-[#fafbfd] px-4 py-7"
+            class="m-0 overflow-hidden rounded-xl border border-[#e6ecf4] bg-white px-2 py-4 sm:px-4 sm:py-6"
           >
             <a v-if="block.fullWidth" :href="block.src" target="_blank" rel="noopener" :aria-label="'打开高清图：' + block.alt">
               <img :src="block.src" :alt="block.alt" class="mx-auto block h-auto w-full max-w-full" loading="lazy" />
@@ -184,7 +184,7 @@ function renderInlineMath(text: string): string {
 
           <figure
             v-else-if="block.type === 'formula'"
-            class="m-0 overflow-x-auto border-y border-[#e1e6ed] bg-[#f7f9fc] px-6 py-6 text-[19px]"
+            class="m-0 max-w-full overflow-x-auto rounded-xl border border-[#e6ecf4] bg-white px-3 py-4 text-[17px] sm:px-6 sm:text-[19px]"
           >
             <div v-if="block.formula" v-html="renderFormula(block.formula)"></div>
             <p v-else class="m-0 min-h-8"><br /></p>
@@ -198,7 +198,7 @@ function renderInlineMath(text: string): string {
 
           <aside
             v-else-if="block.type === 'callout'"
-            class="rounded-[4px] border px-5 py-4"
+            class="rounded-xl border px-4 py-3.5 sm:px-5"
             :class="block.tone === 'blue' ? 'border-blue-100 bg-blue-50/60' : 'border-amber-100 bg-amber-50/60'"
           >
             <div class="flex items-center gap-2.5">

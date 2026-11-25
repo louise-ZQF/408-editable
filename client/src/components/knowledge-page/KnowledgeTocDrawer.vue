@@ -7,31 +7,29 @@ defineProps<{
   entries: KnowledgeTocEntry[];
   open: boolean;
   pinned: boolean;
+  compact: boolean;
   visible: boolean;
 }>();
 
 const emit = defineEmits<{
   hover: [value: boolean];
   pin: [value: boolean];
+  navigate: [];
 }>();
 </script>
 
 <template>
   <ReaderDrawer
     side="right"
-    :width="270"
     :open="open"
     :pinned="pinned"
-    trigger-label="悬停展开本节目录"
+    :compact="compact"
     pin-label="本节目录"
     @hover="emit('hover', $event)"
     @pin="emit('pin', $event)"
   >
     <template #header>
       <div>
-        <p class="mb-1 mt-0 font-mono text-[9px] font-bold tracking-[.16em] text-[#31559e]">
-          ON THIS PAGE
-        </p>
         <h2 class="m-0 text-[15px] font-semibold tracking-[-.015em] text-[#071225]">
           本节目录
         </h2>
@@ -40,7 +38,8 @@ const emit = defineEmits<{
     <KnowledgeToc
       v-if="visible"
       :entries="entries"
-      class="h-full"
+      :open="open"
+      @navigate="emit('navigate')"
     />
   </ReaderDrawer>
 </template>

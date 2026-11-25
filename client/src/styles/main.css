@@ -14,7 +14,7 @@
   :root {
     font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
     color: #10233b;
-    background: #f4f7fb;
+    background: #fff;
     font-synthesis: none;
   }
 
@@ -25,7 +25,7 @@
   body {
     min-width: 320px;
     margin: 0;
-    background: #f4f7fb;
+    background: #fff;
   }
 
   a {
@@ -64,4 +64,12 @@
 ::highlight(knowledge-search) {
   background-color: #fff09a;
   color: #713600;
+}
+
+[data-testid='knowledge-article-column'] mark {
+  color: #3d2c12;
+  background: #ffeb98;
+  border-radius: 2px;
+  box-decoration-break: clone;
+  padding-inline: 0.12em;
 }

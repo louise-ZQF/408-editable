@@ -101,13 +101,13 @@ watch(normalizedQuery, () => {
 <template>
   <nav
     data-testid="knowledge-sidebar"
-    class="min-h-0 flex-1 overflow-y-auto px-3 pb-10 pt-3"
+    class="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pb-24 pt-3"
     aria-label="知识目录"
   >
     <div
       class="mb-2 px-3 py-2 font-mono text-[10px] font-bold tracking-[.15em] text-slate-400"
     >
-      CONTENTS / 目录
+      目录
     </div>
     <ol class="m-0 list-none space-y-1 p-0">
       <li
@@ -123,7 +123,7 @@ watch(normalizedQuery, () => {
           class="grid w-full origin-left grid-cols-[34px_minmax(0,1fr)_18px] items-center gap-2 px-3 py-[13px] text-left transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#12327f]"
           :class="
             openChapterId === chapter.id
-              ? 'rounded-t-[6px] bg-[#eef2f8] text-[#071225]'
+              ? 'rounded-t-[6px] bg-[#f4f7fc] text-[#071225]'
               : 'rounded-[6px] text-slate-600 hover:bg-[#eef2f8] hover:text-[#071225]'
           "
           :aria-expanded="openChapterId === chapter.id"
@@ -163,7 +163,7 @@ watch(normalizedQuery, () => {
                 class="block w-full rounded-[4px] py-2 pl-[46px] pr-3 text-left text-[15px] leading-6 tracking-[-.012em] transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#12327f]"
                 :class="
                   section.id === activeSectionId
-                    ? 'bg-[#e6eefb] font-semibold text-[#12327f]'
+                    ? 'bg-[#edf3ff] font-semibold text-[#12327f]'
                     : 'font-normal text-slate-600 hover:bg-[#f2f5f9] hover:text-[#071225]'
                 "
                 :aria-current="
@@ -193,9 +193,9 @@ watch(normalizedQuery, () => {
   opacity: 0;
   visibility: hidden;
   transition:
-    grid-template-rows 0.32s ease,
-    opacity 0.28s ease,
-    visibility 0s linear 0.32s;
+    grid-template-rows 0.2s ease,
+    opacity 0.17s ease,
+    visibility 0s linear 0.2s;
 }
 
 .chapter-sections.is-open {

@@ -8,6 +8,7 @@ defineProps<{
   exams: Exam[];
   open: boolean;
   pinned: boolean;
+  compact: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -20,11 +21,9 @@ const emit = defineEmits<{
 <template>
   <ReaderDrawer
     side="right"
-    :width="244"
     :open="open"
     :pinned="pinned"
-    surface-class="bg-[#f7f9fc]"
-    trigger-label="悬停展开题目目录"
+    :compact="compact"
     pin-label="题目目录"
     @hover="emit('hover', $event)"
     @pin="emit('pin', $event)"
@@ -44,15 +43,15 @@ const emit = defineEmits<{
       </div>
     </template>
     <ol
-      class="m-0 h-[calc(100vh-86px)] list-none space-y-1 overflow-y-auto px-3 py-4"
+      class="m-0 min-h-0 flex-1 list-none space-y-1 overflow-y-auto overscroll-contain px-3 pb-24 pt-4"
     >
       <li v-for="exam in exams" :key="exam.id">
         <button
           type="button"
-          class="flex w-full items-baseline justify-between gap-3 border-l-2 px-3 py-3 text-left transition hover:bg-white"
+          class="flex w-full items-baseline justify-between gap-3 border-l-2 px-3 py-3 text-left rounded-r-lg transition-colors hover:bg-slate-50"
           :class="
             activeExamId === exam.id
-              ? 'border-[#12327f] bg-white text-[#12327f]'
+              ? 'border-[#3f67c0] bg-[#eff5ff] text-[#214ca4]'
               : 'border-transparent text-slate-500 hover:text-[#071225]'
           "
           @click="emit('select', exam.id)"

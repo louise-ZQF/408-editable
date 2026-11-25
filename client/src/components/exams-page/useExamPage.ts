@@ -121,7 +121,7 @@ export function useExamPage() {
   function scrollToExam(id: string, smooth = true) {
     activeExamId.value = id;
     document.getElementById(`exam-${id}`)?.scrollIntoView({
-      behavior: smooth ? "smooth" : "auto",
+      behavior: smooth && !window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "smooth" : "auto",
       block: "start",
     });
     router.replace({ query: { ...buildFilterQuery(), exam: id } });
