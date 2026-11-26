@@ -6,7 +6,7 @@ import { useSearchPage } from '@/components/search-page/useSearchPage'
 import type { SearchResult } from '@/search/types'
 
 const router = useRouter()
-const { query, activeQuery, filters, failed, loading, results, submit, setFilters, selectQuery, saveQueryBeforeLeaving } = useSearchPage()
+const { query, activeQuery, subject, failed, loading, results, submit, setSubject, selectQuery, saveQueryBeforeLeaving } = useSearchPage()
 
 async function openResult(result: SearchResult) {
   await saveQueryBeforeLeaving()
@@ -22,8 +22,8 @@ async function openResult(result: SearchResult) {
       :failed="failed"
       :query="activeQuery"
       :results="results"
-      :filters="filters"
-      @filter="setFilters"
+      :subject="subject"
+      @subject="setSubject"
       @example="selectQuery"
       @retry="submit"
       @select="openResult"

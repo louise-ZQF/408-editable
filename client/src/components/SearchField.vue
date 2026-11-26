@@ -29,7 +29,7 @@ function clear() {
       name="q"
       aria-label="搜索"
       :maxlength="MAX_SEARCH_LENGTH"
-      placeholder="搜索知识点、题干关键词或真题题号"
+      placeholder="搜索知识点或正文关键词"
       autocomplete="off"
       spellcheck="false"
       enterkeyhint="search"

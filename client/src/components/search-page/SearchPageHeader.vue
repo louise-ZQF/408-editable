@@ -13,7 +13,6 @@ const emit = defineEmits<{ submit: [] }>()
       <BrandLogo class="min-h-11 justify-self-start" />
       <nav aria-label="主导航" class="flex items-center gap-3 text-sm font-semibold text-[#365181] sm:gap-5 lg:col-start-3 lg:row-start-1">
         <RouterLink v-if="workspace.settings.showKnowledge" to="/knowledge" class="top-link">知识简纲</RouterLink>
-        <RouterLink v-if="workspace.settings.showExams" to="/exams" class="top-link">历年真题</RouterLink>
       </nav>
       <SearchField v-model="query" class="col-span-2 lg:col-span-1 lg:col-start-2 lg:row-start-1" @submit="emit('submit')" />
     </div>

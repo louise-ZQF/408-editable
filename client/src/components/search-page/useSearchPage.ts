@@ -1,7 +1,7 @@
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { findSearchResults } from '@/search/composables/useSearch'
-import { MAX_SEARCH_LENGTH, SEARCH_SUBJECTS, type SearchFilters, type SearchScope, type SearchSubject } from '@/search/query'
+import { MAX_SEARCH_LENGTH, SEARCH_SUBJECTS, type SearchSubject } from '@/search/query'
 import type { SearchResult } from '@/search/types'
 
 export function useSearchPage() {
@@ -13,18 +13,14 @@ export function useSearchPage() {
   const results = ref<SearchResult[]>([])
   const loading = ref(false)
   const failed = ref(false)
-  const filters = computed<SearchFilters>(() => ({
-    scope: route.query.type === 'exam' || route.query.type === 'knowledge' ? route.query.type : 'all',
-    subject: SEARCH_SUBJECTS.find((item) => item.id === route.query.subject)?.id ?? '',
-  }))
+  const subject = computed(() => SEARCH_SUBJECTS.find((item) => item.id === route.query.subject)?.id ?? '')
 
   let timer: ReturnType<typeof setTimeout> | undefined
   let sequence = 0
 
   async function runSearch(current: string, request: number) {
-    const currentFilters = filters.value
     try {
-      const found = await findSearchResults(current, currentFilters)
+      const found = await findSearchResults(current, { scope: 'knowledge', subject: subject.value })
       if (request === sequence) results.value = found
     } catch {
       if (request === sequence) failed.value = true
@@ -44,23 +40,22 @@ export function useSearchPage() {
     if (current) timer = setTimeout(() => { void runSearch(current, request) }, delay)
   }
 
-  function routeQuery(scope: SearchScope, subject: SearchSubject | '') {
-    return { q: query.value.trim() || undefined, type: scope === 'all' ? undefined : scope, subject: subject || undefined }
+  function routeQuery(selectedSubject: SearchSubject | '') {
+    return { q: query.value.trim() || undefined, subject: selectedSubject || undefined }
   }
 
   function submit() {
-    const { scope, subject } = filters.value
-    void router.replace({ name: 'search', query: routeQuery(scope, subject) })
+    void router.replace({ name: 'search', query: routeQuery(subject.value) })
     queueSearch(0)
   }
 
-  function setFilters(scope: SearchScope, subject: SearchSubject | '') {
-    if (scope === filters.value.scope && subject === filters.value.subject) return
-    void router.replace({ name: 'search', query: routeQuery(scope, subject) })
+  function setSubject(selectedSubject: SearchSubject | '') {
+    if (selectedSubject === subject.value) return
+    void router.replace({ name: 'search', query: routeQuery(selectedSubject) })
   }
 
   watch(() => route.query.q, () => { query.value = queryFromRoute() })
-  watch([query, () => filters.value.scope, () => filters.value.subject], () => queueSearch(160), { immediate: true })
+  watch([query, subject], () => queueSearch(160), { immediate: true })
 
   function selectQuery(value: string) {
     query.value = value
@@ -70,7 +65,7 @@ export function useSearchPage() {
   async function saveQueryBeforeLeaving() {
     const current = query.value.trim()
     if (current !== queryFromRoute()) {
-      await router.replace({ name: 'search', query: routeQuery(filters.value.scope, filters.value.subject) })
+      await router.replace({ name: 'search', query: routeQuery(subject.value) })
     }
   }
 
@@ -79,5 +74,5 @@ export function useSearchPage() {
     sequence++
   })
 
-  return { query, activeQuery, filters, failed, loading, results, submit, setFilters, selectQuery, saveQueryBeforeLeaving }
+  return { query, activeQuery, subject, failed, loading, results, submit, setSubject, selectQuery, saveQueryBeforeLeaving }
 }

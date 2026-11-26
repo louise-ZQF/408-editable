@@ -1,7 +1,7 @@
 import { escapeRegExp, normalizeIo } from './shared'
 
 export const MAX_SEARCH_LENGTH = 20
-export const SEARCH_EXAMPLES = ['快表', '排序稳定性', 'TCP 拥塞控制', '2019年第1题']
+export const SEARCH_EXAMPLES = ['快表', '排序稳定性', 'TCP 拥塞控制']
 
 export const SEARCH_SUBJECTS = [
   { id: 'ds', bookSubject: 'DATA_STRUCTURES', title: '数据结构' },

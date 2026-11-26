@@ -26,7 +26,8 @@ describe('SearchBox', () => {
     const { wrapper } = await mountSearch()
     const input = wrapper.find('input')
     expect(input.exists()).toBe(true)
-    expect(input.attributes('placeholder')).toContain('题干关键词或真题题号')
+    expect(input.attributes('placeholder')).toBe('搜索知识点或正文关键词')
+    expect(wrapper.text()).not.toContain('2019年第1题')
   })
 
   it('输入文本更新 v-model', async () => {
