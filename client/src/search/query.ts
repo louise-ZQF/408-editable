@@ -1,7 +1,14 @@
 import { escapeRegExp, normalizeIo } from './shared'
 
 export const MAX_SEARCH_LENGTH = 20
-export const SEARCH_EXAMPLES = ['快表', '排序稳定性', 'TCP 拥塞控制']
+export const PERSONAL_ADDITION_TAG = '我的补充'
+export const PERSONAL_ADDITION_PREFIX = `【${PERSONAL_ADDITION_TAG}】`
+export const SEARCH_EXAMPLES = ['快表', '排序稳定性', 'TCP 拥塞控制', PERSONAL_ADDITION_TAG]
+
+export function isPersonalAdditionSearch(query: string): boolean {
+  const term = query.normalize('NFKC').trim()
+  return term === PERSONAL_ADDITION_TAG || term === PERSONAL_ADDITION_PREFIX || term === `#${PERSONAL_ADDITION_TAG}`
+}
 
 export const SEARCH_SUBJECTS = [
   { id: 'ds', bookSubject: 'DATA_STRUCTURES', title: '数据结构' },

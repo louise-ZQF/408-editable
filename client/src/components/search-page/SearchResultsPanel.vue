@@ -1,10 +1,11 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { ArrowRight, Reading, Search } from '@element-plus/icons-vue'
 import { highlightText } from '@/search/shared'
-import { SEARCH_EXAMPLES, SEARCH_SUBJECTS, type SearchSubject } from '@/search/query'
+import { isPersonalAdditionSearch, SEARCH_EXAMPLES, SEARCH_SUBJECTS, type SearchSubject } from '@/search/query'
 import type { SearchResult } from '@/search/types'
 
-defineProps<{
+const props = defineProps<{
   loading: boolean
   failed: boolean
   query: string
@@ -19,6 +20,8 @@ const emit = defineEmits<{
   retry: []
 }>()
 
+const showAllAdditions = computed(() => isPersonalAdditionSearch(props.query))
+
 function openResult(event: MouseEvent, result: SearchResult) {
   if (event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return
   event.preventDefault()
@@ -29,7 +32,7 @@ function openResult(event: MouseEvent, result: SearchResult) {
 <template>
   <main class="mx-auto min-h-[75vh] w-full max-w-6xl px-5 pb-20 pt-7 sm:px-8 sm:pt-10" :aria-busy="loading">
     <h1 class="mb-4 text-[clamp(1.65rem,3vw,2.1rem)] font-bold tracking-tight text-[#122748]">搜索知识点</h1>
-    <div class="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-[#dce5f1] pb-4">
+    <div v-if="!showAllAdditions" class="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-[#dce5f1] pb-4">
       <div class="flex items-center gap-2 text-sm font-semibold text-[#465b7b]">
         <label for="search-subject">科目</label>
         <select
@@ -46,7 +49,7 @@ function openResult(event: MouseEvent, result: SearchResult) {
 
     <p v-if="loading" role="status" class="mb-3 text-sm text-[#465b7b]">正在查找「{{ query }}」…</p>
     <p v-else-if="query && results.length" role="status" class="mb-3 text-sm text-[#465b7b]">
-      「{{ query }}」的{{ results.length === 8 ? '前' : '' }} {{ results.length }} 条结果
+      「{{ query }}」的{{ !showAllAdditions && results.length === 8 ? '前' : '' }} {{ results.length }} 条结果
     </p>
 
     <ul v-if="results.length" class="grid list-none gap-2.5 p-0">
@@ -72,11 +75,11 @@ function openResult(event: MouseEvent, result: SearchResult) {
 
     <div v-else class="rounded-xl border border-[#dce5f1] bg-white px-6 py-10 text-center">
       <Search class="mx-auto mb-3 h-6 w-6 text-[#4369ad]" aria-hidden="true" />
-      <h2 class="mb-2 text-lg font-bold text-[#142b50]">{{ failed ? '搜索暂时无法加载' : query ? '没有找到匹配结果' : '输入知识点或正文关键词' }}</h2>
+      <h2 class="mb-2 text-lg font-bold text-[#142b50]">{{ failed ? '搜索暂时无法加载' : showAllAdditions ? '还没有标记的补充内容' : query ? '没有找到匹配结果' : '输入知识点或正文关键词' }}</h2>
       <p v-if="failed" class="mb-3 text-sm text-[#465b7b]">可以重新加载索引后再试一次。</p>
-      <p v-else-if="query" class="mb-3 text-sm text-[#465b7b]">换个关键词，或放宽筛选范围。</p>
+      <p v-else-if="query && !showAllAdditions" class="mb-3 text-sm text-[#465b7b]">换个关键词，或放宽筛选范围。</p>
       <button v-if="failed" type="button" class="empty-button" @click="emit('retry')">重试</button>
-      <button v-else-if="query && subject" type="button" class="empty-button" @click="emit('subject', '')">清除筛选</button>
+      <button v-else-if="query && subject && !showAllAdditions" type="button" class="empty-button" @click="emit('subject', '')">清除筛选</button>
       <div v-else class="flex flex-wrap justify-center gap-x-2">
         <button v-for="example in SEARCH_EXAMPLES" :key="example" type="button" class="empty-button" @click="emit('example', example)">{{ example }}</button>
       </div>

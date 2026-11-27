@@ -1,7 +1,7 @@
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { findSearchResults } from '@/search/composables/useSearch'
-import { MAX_SEARCH_LENGTH, SEARCH_SUBJECTS, type SearchSubject } from '@/search/query'
+import { isPersonalAdditionSearch, MAX_SEARCH_LENGTH, SEARCH_SUBJECTS, type SearchSubject } from '@/search/query'
 import type { SearchResult } from '@/search/types'
 
 export function useSearchPage() {
@@ -41,7 +41,8 @@ export function useSearchPage() {
   }
 
   function routeQuery(selectedSubject: SearchSubject | '') {
-    return { q: query.value.trim() || undefined, subject: selectedSubject || undefined }
+    const q = query.value.trim()
+    return { q: q || undefined, subject: isPersonalAdditionSearch(q) ? undefined : selectedSubject || undefined }
   }
 
   function submit() {

@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { test, expect } from '@playwright/test'
 
@@ -49,4 +50,30 @@ test('提问式搜索能定位 Cache 组号算法', async ({ page }) => {
   await results.first().click()
   await expect(page.locator('#kb-co-cache-mapping-4')).toContainText('主存块号对组数取余')
   await expect(page.getByText('分步动画', { exact: true })).toHaveCount(0)
+})
+
+
+test('同一页有多项补充时，标记搜索返回全部并圈出所选小节', async ({ page }) => {
+  const file = new URL('../public/editor/content.json', import.meta.url)
+  const data = JSON.parse(readFileSync(file, 'utf8'))
+  const article = data.articles['os-two-level-page-table']
+  for (let i = 1; i <= 9; i++) {
+    article.subpoints.push({
+      id: `tag-test-${i}`,
+      title: `【我的补充】测试资料 ${i}`,
+      blocks: [{ id: `kb-tag-test-${i}`, type: 'paragraph', text: '测试正文' }],
+    })
+  }
+  await page.route('**/editor/content.json?*', route => route.fulfill({ json: data }))
+  await page.goto('/#/search?' + new URLSearchParams({ q: '我的补充', subject: 'cn' }))
+  const results = page.locator('.result-item')
+  await expect(results.filter({ hasText: /测试资料/ })).toHaveCount(9)
+  await expect(page.getByRole('status')).not.toContainText('前')
+  await expect(page.getByLabel('科目', { exact: true })).toHaveCount(0)
+  const guide = results.filter({ hasText: '二级页表图解' })
+  await expect(guide.locator('mark')).toHaveText('我的补充')
+  await guide.click()
+  const section = page.locator('#os-two-level-page-table-guide')
+  await expect(section).toHaveAttribute('data-search-target', '')
+  await expect(section.getByRole('img')).toHaveCount(5)
 })
